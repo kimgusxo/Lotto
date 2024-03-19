@@ -2,6 +2,7 @@ package com.example.lotto.unit.repository;
 
 import com.example.lotto.domain.Result;
 import com.example.lotto.repository.ResultRepository;
+import com.mongodb.DuplicateKeyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 public class ResultRepositoryUnitTest {
@@ -34,7 +40,8 @@ public class ResultRepositoryUnitTest {
                 Result result = resultRepository.findByRound(round);
 
                 // then
-
+                assertThat(result.getRound())
+                        .isEqualTo(round);
             }
 
             @Test
@@ -43,11 +50,10 @@ public class ResultRepositoryUnitTest {
                 // given
                 Integer round = -1;
 
-                // when
-                Result result = resultRepository.findByRound(round);
-
-                // then
-
+                // when & then
+                assertThatThrownBy(() -> resultRepository.findByRound(round))
+                        .isInstanceOf(NullPointerException.class)
+                        .hasMessage(round + "번 회차는 존재하지 않습니다.");
             }
 
         }
@@ -66,6 +72,8 @@ public class ResultRepositoryUnitTest {
                 Result result = resultRepository.findByBonusNumber(bonusNumber);
 
                 // then
+                assertThat(result.getBonusNumber())
+                        .isEqualTo(bonusNumber);
 
             }
 
@@ -75,10 +83,10 @@ public class ResultRepositoryUnitTest {
                 // given
                 Integer bonusNumber = -1;
 
-                // when
-                Result result = resultRepository.findByBonusNumber(bonusNumber);
-
-                // then
+                // when & then
+                assertThatThrownBy(() -> resultRepository.findByBonusNumber(bonusNumber))
+                        .isInstanceOf(NullPointerException.class)
+                        .hasMessage(bonusNumber + "번 보너스 번호는 존재하지 않습니다.");
 
             }
 
@@ -98,7 +106,8 @@ public class ResultRepositoryUnitTest {
                 List<Result> resultList = resultRepository.findByNumbersContaining(number);
 
                 // then
-
+                assertThat(resultList)
+                        .isNotEmpty();
             }
 
             @Test
@@ -111,6 +120,8 @@ public class ResultRepositoryUnitTest {
                 List<Result> resultList = resultRepository.findByNumbersContaining(number);
 
                 // then
+                assertThat(resultList)
+                        .isEmpty();
 
             }
 
@@ -131,6 +142,8 @@ public class ResultRepositoryUnitTest {
                 List<Result> resultList = resultRepository.findByDateBetween(startDate, endDate);
 
                 // then
+                assertThat(resultList)
+                        .isNotEmpty();
 
             }
 
@@ -145,6 +158,9 @@ public class ResultRepositoryUnitTest {
                 List<Result> resultList = resultRepository.findByDateBetween(startDate, endDate);
 
                 // then
+                assertThat(resultList)
+                        .isEmpty();
+
             }
 
         }
@@ -158,11 +174,72 @@ public class ResultRepositoryUnitTest {
         @DisplayName("성공")
         void success() {
             // given
+            Integer round = 0;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
+            Integer bonusNumber = 0;
+            LocalDate date = LocalDate.of(2000, 1, 1);
+
+            Result result = Result.builder()
+                    .round(round)
+                    .numbers(numbers)
+                    .bonusNumber(bonusNumber)
+                    .date(date)
+                    .build();
+
+            // when
+            Result savedResult = resultRepository.insert(result);
+
+            // then
+            assertThat(savedResult.getRound())
+                    .isEqualTo(round);
+
+        }
+
+        @Test
+        @DisplayName("실패")
+        void fail() {
+            // given
+            Integer round = 1111;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
+            Integer bonusNumber = 0;
+            LocalDate date = LocalDate.of(2000, 1, 1);
+
+            Result result = Result.builder()
+                    .round(round)
+                    .numbers(numbers)
+                    .bonusNumber(bonusNumber)
+                    .date(date)
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> resultRepository.insert(result))
+                    .isInstanceOf(DuplicateKeyException.class)
+                    .hasMessage(round + "회차는 이미 존재합니다.");
+
+        }
+
+    }
+
+    @Nested
+    @DisplayName("update 테스트")
+    class Test_Update {
+
+
+
+    }
+
+    @Nested
+    @DisplayName("delete 테스트")
+    class Test_Delete {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
 
             // when
 
             // then
-
 
         }
 

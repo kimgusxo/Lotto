@@ -10,4 +10,5 @@ import java.util.List;
 public interface ResultRepository extends MongoRepository<Result, String> {
     Result findByRound(Integer round);
     Result findByBonusNumber(Integer bonusNumber);
+
 }
