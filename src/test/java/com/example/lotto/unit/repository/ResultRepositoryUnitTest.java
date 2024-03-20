@@ -2,14 +2,12 @@ package com.example.lotto.unit.repository;
 
 import com.example.lotto.domain.Result;
 import com.example.lotto.repository.ResultRepository;
-import com.mongodb.DuplicateKeyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.context.SpringBootTest;
-
+import org.springframework.dao.DuplicateKeyException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,14 +68,14 @@ public class ResultRepositoryUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                Integer bonusNumber = 3;
+                Integer bonusNumber = 0;
 
                 // when
-                Result result = resultRepository.findByBonusNumber(bonusNumber);
+                List<Result> resultList = resultRepository.findByBonusNumber(bonusNumber);
 
                 // then
-                assertThat(result.getBonusNumber())
-                        .isEqualTo(bonusNumber);
+                assertThat(resultList)
+                        .isNotEmpty();
 
             }
 
@@ -88,11 +86,11 @@ public class ResultRepositoryUnitTest {
                 Integer bonusNumber = -1;
 
                 // when
-                Result result = resultRepository.findByBonusNumber(bonusNumber);
+                List<Result> resultList = resultRepository.findByBonusNumber(bonusNumber);
 
                 // then
-                assertThat(result)
-                        .isNull();
+                assertThat(resultList)
+                        .isEmpty();
 
             }
 
@@ -183,7 +181,7 @@ public class ResultRepositoryUnitTest {
             Integer round = 1111;
             List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
             Integer bonusNumber = 0;
-            LocalDate date = LocalDate.of(2000, 1, 1);
+            LocalDate date = LocalDate.of(2024, 3, 2);
 
             Result result = Result.builder()
                     .round(round)
@@ -208,7 +206,7 @@ public class ResultRepositoryUnitTest {
             Integer round = 1111;
             List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
             Integer bonusNumber = 0;
-            LocalDate date = LocalDate.of(2000, 1, 1);
+            LocalDate date = LocalDate.of(2024, 3, 2);
 
             Result result = Result.builder()
                     .round(round)
@@ -249,17 +247,33 @@ public class ResultRepositoryUnitTest {
         }
 
         @Test
-        @DisplayName("실패")
-        void fail() {
+        @DisplayName("실패(없는 문서를 업데이트 시)")
+        void fail_null() {
             // given
             Integer round = -1;
 
             // when & then
             assertThatThrownBy(() -> {
                 Result result = resultRepository.findByRound(round);
+                result.setRound(round);
                 resultRepository.save(result);
-            }).isInstanceOf(IllegalArgumentException.class);
+            }).isInstanceOf(NullPointerException.class);
 
+        }
+
+        @Test
+        @DisplayName("실패(중복 문서로 업데이트 시)")
+        void fail_duplication() {
+            // given
+            Integer round = 1111;
+
+            // when & then
+            assertThatThrownBy(() ->{
+                        Result result = resultRepository.findByRound(round);
+                        result.setRound(1112);
+                        resultRepository.save(result);
+                    })
+                    .isInstanceOf(DuplicateKeyException.class);
 
         }
 
@@ -275,14 +289,14 @@ public class ResultRepositoryUnitTest {
         @DisplayName("성공")
         void success() {
             // given
-            Integer round = 1111;
+            Integer round = 1112;
 
             // when
-            boolean flag = resultRepository.deleteByRound(round);
+            Integer deleteCount = resultRepository.deleteByRound(round);
 
             // then
-            assertThat(flag)
-                    .isTrue();
+            assertThat(deleteCount)
+                    .isNotZero();
         }
 
         @Test
@@ -291,9 +305,12 @@ public class ResultRepositoryUnitTest {
             // given
             Integer round = -1;
 
-            // when & then
-            assertThatThrownBy(() -> resultRepository.deleteByRound(round))
-                    .isInstanceOf(NoSuchElementException.class);
+            // when
+            Integer deleteCount = resultRepository.deleteByRound(round);
+
+            // then
+            assertThat(deleteCount)
+                    .isZero();
 
         }
 

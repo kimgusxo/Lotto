@@ -11,9 +11,9 @@ import java.util.List;
 public interface ResultRepository extends MongoRepository<Result, String> {
 
     Result findByRound(Integer round);
-    Result findByBonusNumber(Integer bonusNumber);
+    List<Result> findByBonusNumber(Integer bonusNumber);
     List<Result> findByNumbersContaining(Integer number);
     List<Result> findByDateBetween(LocalDate startDate, LocalDate endDate);
-    boolean deleteByRound(Integer round);
+    Integer deleteByRound(Integer round);
 
 }
