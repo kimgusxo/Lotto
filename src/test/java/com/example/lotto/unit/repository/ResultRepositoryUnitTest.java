@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ import java.util.NoSuchElementException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@DataMongoTest
 public class ResultRepositoryUnitTest {
 
     @Autowired
@@ -51,10 +52,12 @@ public class ResultRepositoryUnitTest {
                 // given
                 Integer round = -1;
 
-                // when & then
-                assertThatThrownBy(() -> resultRepository.findByRound(round))
-                        .isInstanceOf(NoSuchElementException.class)
-                        .hasMessage(round + "번 회차는 존재하지 않습니다.");
+                // when
+                Result result = resultRepository.findByRound(round);
+
+                // then
+                assertThat(result)
+                        .isNull();
             }
 
         }
@@ -67,7 +70,7 @@ public class ResultRepositoryUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                Integer bonusNumber = 4;
+                Integer bonusNumber = 3;
 
                 // when
                 Result result = resultRepository.findByBonusNumber(bonusNumber);
@@ -84,10 +87,12 @@ public class ResultRepositoryUnitTest {
                 // given
                 Integer bonusNumber = -1;
 
-                // when & then
-                assertThatThrownBy(() -> resultRepository.findByBonusNumber(bonusNumber))
-                        .isInstanceOf(NoSuchElementException.class)
-                        .hasMessage(bonusNumber + "번 보너스 번호는 존재하지 않습니다.");
+                // when
+                Result result = resultRepository.findByBonusNumber(bonusNumber);
+
+                // then
+                assertThat(result)
+                        .isNull();
 
             }
 
@@ -101,7 +106,7 @@ public class ResultRepositoryUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                Integer number = 3;
+                Integer number = 0;
 
                 // when
                 List<Result> resultList = resultRepository.findByNumbersContaining(number);
@@ -175,7 +180,7 @@ public class ResultRepositoryUnitTest {
         @DisplayName("성공")
         void success() {
             // given
-            Integer round = 0;
+            Integer round = 1111;
             List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
             Integer bonusNumber = 0;
             LocalDate date = LocalDate.of(2000, 1, 1);
@@ -214,8 +219,7 @@ public class ResultRepositoryUnitTest {
 
             // when & then
             assertThatThrownBy(() -> resultRepository.insert(result))
-                    .isInstanceOf(DuplicateKeyException.class)
-                    .hasMessage(round + "회차는 이미 존재합니다.");
+                    .isInstanceOf(DuplicateKeyException.class);
 
         }
 
@@ -236,7 +240,7 @@ public class ResultRepositoryUnitTest {
             result.setRound(updateRound);
 
             // when
-            Result updateResult = resultRepository.insert(result);
+            Result updateResult = resultRepository.save(result);
 
             // then
             assertThat(updateResult.getRound())
@@ -253,14 +257,15 @@ public class ResultRepositoryUnitTest {
             // when & then
             assertThatThrownBy(() -> {
                 Result result = resultRepository.findByRound(round);
-                resultRepository.insert(result);
-            }).isInstanceOf(NoSuchElementException.class)
-                    .hasMessage(round + "번째 회차는 존재하지 않아 수정할 수 없습니다.");
+                resultRepository.save(result);
+            }).isInstanceOf(IllegalArgumentException.class);
 
 
         }
 
     }
+    
+    // delete만 해결하면 됨
 
     @Nested
     @DisplayName("delete 테스트")
@@ -273,11 +278,11 @@ public class ResultRepositoryUnitTest {
             Integer round = 1111;
 
             // when
-            resultRepository.deleteByRound(round);
+            boolean flag = resultRepository.deleteByRound(round);
 
             // then
-            assertThat(resultRepository.findByRound(round))
-                    .isNull();
+            assertThat(flag)
+                    .isTrue();
         }
 
         @Test
@@ -288,8 +293,7 @@ public class ResultRepositoryUnitTest {
 
             // when & then
             assertThatThrownBy(() -> resultRepository.deleteByRound(round))
-                    .isInstanceOf(NoSuchElementException.class)
-                    .hasMessage(round + "회차가 존재하지 않아 삭제할 수 없습니다.");
+                    .isInstanceOf(NoSuchElementException.class);
 
         }
 

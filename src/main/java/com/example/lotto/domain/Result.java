@@ -1,5 +1,8 @@
 package com.example.lotto.domain;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +23,13 @@ public class Result {
     @Id
     private String id;
     @Indexed(unique = true)
+    @Min(value = 1)
     private Integer round;
+    @Min(value = 1)
+    @Max(value = 45)
     private List<Integer> numbers;
     private Integer bonusNumber;
+    @Past
     private LocalDate date;
 
 }
