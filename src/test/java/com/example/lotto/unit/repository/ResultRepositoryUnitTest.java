@@ -265,14 +265,14 @@ public class ResultRepositoryUnitTest {
         void fail_duplication() {
             // given
             Integer round = 1111;
+            Integer updateRound = 1112;
 
             // when & then
             assertThatThrownBy(() ->{
                         Result result = resultRepository.findByRound(round);
-                        result.setRound(1112);
+                        result.setRound(updateRound);
                         resultRepository.save(result);
-                    })
-                    .isInstanceOf(DuplicateKeyException.class);
+            }).isInstanceOf(DuplicateKeyException.class);
 
         }
 

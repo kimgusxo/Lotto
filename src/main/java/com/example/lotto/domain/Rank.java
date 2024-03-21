@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -17,7 +18,8 @@ public class Rank {
     @Id
     private String id;
 
-    private Integer rank;
+    @Indexed(unique = true)
+    private Integer ranking;
 
     private Integer winningCount;
     private Long totalWinningAmount;
