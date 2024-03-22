@@ -2,17 +2,20 @@ package com.example.lotto.unit.repository;
 
 import com.example.lotto.domain.Result;
 import com.example.lotto.repository.ResultRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.IndexOperations;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,10 +25,36 @@ public class ResultRepositoryUnitTest {
 
     @Autowired
     private ResultRepository resultRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
 
     @Nested
     @DisplayName("find 테스트")
     class Test_Find {
+
+        @BeforeEach
+        @DisplayName("데이터 생성")
+        void setUp() {
+            Integer round = 1111;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
+
+            Optional<Result> existingResult = Optional.ofNullable(resultRepository.findByRound(round));
+
+            if(existingResult.isEmpty()) {
+                Result result = Result.builder()
+                        .round(round)
+                        .numbers(numbers)
+                        .bonusNumber(bonusNumber)
+                        .date(date)
+                        .build();
+
+                resultRepository.save(result);
+            }
+        }
+
         @Nested
         @DisplayName("findByRound 테스트")
         class Test_FindByRound {
@@ -68,7 +97,7 @@ public class ResultRepositoryUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                Integer bonusNumber = 0;
+                Integer bonusNumber = 4;
 
                 // when
                 List<Result> resultList = resultRepository.findByBonusNumber(bonusNumber);
@@ -104,7 +133,7 @@ public class ResultRepositoryUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                Integer number = 0;
+                Integer number = 3;
 
                 // when
                 List<Result> resultList = resultRepository.findByNumbersContaining(number);
@@ -179,9 +208,9 @@ public class ResultRepositoryUnitTest {
         void success() {
             // given
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
-            Integer bonusNumber = 0;
-            LocalDate date = LocalDate.of(2024, 3, 2);
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
 
             Result result = Result.builder()
                     .round(round)
@@ -204,9 +233,9 @@ public class ResultRepositoryUnitTest {
         void fail() {
             // given
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
-            Integer bonusNumber = 0;
-            LocalDate date = LocalDate.of(2024, 3, 2);
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
 
             Result result = Result.builder()
                     .round(round)
@@ -214,6 +243,8 @@ public class ResultRepositoryUnitTest {
                     .bonusNumber(bonusNumber)
                     .date(date)
                     .build();
+
+            resultRepository.insert(result);
 
             // when & then
             assertThatThrownBy(() -> resultRepository.insert(result))
@@ -227,6 +258,47 @@ public class ResultRepositoryUnitTest {
     @DisplayName("update 테스트")
     class Test_Update {
 
+        @BeforeEach
+        @DisplayName("데이터 생성")
+        void setUp() {
+            // Test DB는 Index 설정을 별도로 해주어야 함
+            IndexOperations indexOps = mongoTemplate.indexOps(Result.class);
+            indexOps.ensureIndex(new Index().on("round", Sort.Direction.ASC).unique());
+
+            Integer round1 = 1111;
+            Integer round2 = 1112;
+
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
+
+            Optional<Result> existingResult1 = Optional.ofNullable(resultRepository.findByRound(round1));
+
+            if(existingResult1.isEmpty()) {
+                Result result1 = Result.builder()
+                        .round(round1)
+                        .numbers(numbers)
+                        .bonusNumber(bonusNumber)
+                        .date(date)
+                        .build();
+
+                resultRepository.save(result1);
+            }
+
+            Optional<Result> existingResult2 = Optional.ofNullable(resultRepository.findByRound(round2));
+
+            if(existingResult2.isEmpty()) {
+                Result result2 = Result.builder()
+                        .round(round2)
+                        .numbers(numbers)
+                        .bonusNumber(bonusNumber)
+                        .date(date)
+                        .build();
+
+                resultRepository.save(result2);
+            }
+        }
+
         @Test
         @DisplayName("성공")
         void success() {
@@ -234,7 +306,7 @@ public class ResultRepositoryUnitTest {
             Integer round = 1111;
             Result result = resultRepository.findByRound(round);
 
-            Integer updateRound = 1112;
+            Integer updateRound = 1113;
             result.setRound(updateRound);
 
             // when
@@ -278,18 +350,38 @@ public class ResultRepositoryUnitTest {
         }
 
     }
-    
-    // delete만 해결하면 됨
 
     @Nested
     @DisplayName("delete 테스트")
     class Test_Delete {
 
+        @BeforeEach
+        @DisplayName("데이터 생성")
+        void setUp() {
+            Integer round = 1111;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
+
+            Optional<Result> existingResult = Optional.ofNullable(resultRepository.findByRound(round));
+
+            if(existingResult.isEmpty()) {
+                Result result = Result.builder()
+                        .round(round)
+                        .numbers(numbers)
+                        .bonusNumber(bonusNumber)
+                        .date(date)
+                        .build();
+
+                resultRepository.save(result);
+            }
+        }
+
         @Test
         @DisplayName("성공")
         void success() {
             // given
-            Integer round = 1112;
+            Integer round = 1111;
 
             // when
             Integer deleteCount = resultRepository.deleteByRound(round);
@@ -311,7 +403,6 @@ public class ResultRepositoryUnitTest {
             // then
             assertThat(deleteCount)
                     .isZero();
-
         }
 
     }
