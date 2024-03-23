@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ public class ResultRepositoryUnitTest {
     private ResultRepository resultRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
-
 
     @Nested
     @DisplayName("find 테스트")
@@ -405,6 +405,12 @@ public class ResultRepositoryUnitTest {
                     .isZero();
         }
 
+    }
+
+    @AfterEach
+    @DisplayName("데이터 정리")
+    void clear() {
+        mongoTemplate.dropCollection("result");
     }
 
 }

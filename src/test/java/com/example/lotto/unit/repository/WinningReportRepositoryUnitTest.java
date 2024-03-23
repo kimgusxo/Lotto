@@ -4,16 +4,18 @@ import com.example.lotto.domain.Rank;
 import com.example.lotto.domain.Result;
 import com.example.lotto.domain.WinningReport;
 import com.example.lotto.repository.WinningReportRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.IndexOperations;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,10 +25,42 @@ public class WinningReportRepositoryUnitTest {
 
     @Autowired
     private WinningReportRepository winningReportRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Nested
     @DisplayName("find 테스트")
     class Test_Find {
+
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            Integer round = 1111;
+            LocalDate date = LocalDate.parse("2024-03-16");
+            Long totalWinningAmount = 10000L;
+
+            Rank rank = Rank.builder()
+                    .ranking(1)
+                    .winningCount(1)
+                    .totalWinningAmount(1L)
+                    .winningAmount(1L)
+                    .build();
+
+            List<Rank> rankList = List.of(rank);
+
+            Optional<WinningReport> existingWinningReport = Optional.ofNullable(winningReportRepository.findByRound(round));
+
+            if(existingWinningReport.isEmpty()) {
+                WinningReport winningReport = WinningReport.builder()
+                        .round(round)
+                        .date(date)
+                        .totalWinningAmount(totalWinningAmount)
+                        .rankList(rankList)
+                        .build();
+
+                winningReportRepository.save(winningReport);
+            }
+        }
 
         @Nested
         @DisplayName("findByRound 테스트")
@@ -148,8 +182,8 @@ public class WinningReportRepositoryUnitTest {
         @DisplayName("객체 생성")
         void setUp() {
             Integer round = 1111;
-            LocalDate date = LocalDate.of(2024, 3, 2);
-            Long totalWinningAmount = 1L;
+            LocalDate date = LocalDate.parse("2024-03-16");
+            Long totalWinningAmount = 10000L;
 
             rank = Rank.builder()
                     .ranking(1)
@@ -186,14 +220,11 @@ public class WinningReportRepositoryUnitTest {
         @DisplayName("실패")
         void fail() {
             // given
+            winningReportRepository.insert(winningReport);
 
-            // when
-            WinningReport savedWinningReport = winningReportRepository.insert(winningReport);
-
-            // then
-            assertThat(savedWinningReport)
-                    .isEqualTo(winningReport);
-
+            // when & then
+            assertThatThrownBy(() -> winningReportRepository.insert(winningReport))
+                    .isInstanceOf(DuplicateKeyException.class);
         }
 
     }
@@ -202,6 +233,55 @@ public class WinningReportRepositoryUnitTest {
     @DisplayName("update 테스트")
     class Test_Update {
 
+        @BeforeEach
+        @DisplayName("데이터 생성")
+        void setUp() {
+            IndexOperations indexOps = mongoTemplate.indexOps(WinningReport.class);
+            indexOps.ensureIndex(new Index().on("round", Sort.Direction.ASC).unique());
+
+            Integer round1 = 1111;
+            Integer round2 = 1112;
+
+            LocalDate date = LocalDate.parse("2024-03-16");
+            Long totalWinningAmount = 10000L;
+
+            Rank rank = Rank.builder()
+                    .ranking(1)
+                    .winningCount(1)
+                    .totalWinningAmount(1L)
+                    .winningAmount(1L)
+                    .build();
+
+            List<Rank> rankList = List.of(rank);
+
+            Optional<WinningReport> existingWinningReport1 = Optional.ofNullable(winningReportRepository.findByRound(round1));
+
+            if(existingWinningReport1.isEmpty()) {
+                WinningReport winningReport1 = WinningReport.builder()
+                        .round(round1)
+                        .date(date)
+                        .totalWinningAmount(totalWinningAmount)
+                        .rankList(rankList)
+                        .build();
+
+                winningReportRepository.save(winningReport1);
+            }
+
+            Optional<WinningReport> existingWinningReport2 = Optional.ofNullable(winningReportRepository.findByRound(round2));
+
+            if(existingWinningReport2.isEmpty()) {
+                WinningReport winningReport2 = WinningReport.builder()
+                        .round(round2)
+                        .date(date)
+                        .totalWinningAmount(totalWinningAmount)
+                        .rankList(rankList)
+                        .build();
+
+                winningReportRepository.save(winningReport2);
+            }
+
+        }
+
         @Test
         @DisplayName("성공")
         void success() {
@@ -209,7 +289,7 @@ public class WinningReportRepositoryUnitTest {
             Integer round = 1111;
             WinningReport winningReport = winningReportRepository.findByRound(round);
 
-            Integer updateRound = 1112;
+            Integer updateRound = 1113;
             winningReport.setRound(updateRound);
 
             // when
@@ -258,11 +338,41 @@ public class WinningReportRepositoryUnitTest {
     @DisplayName("delete 테스트")
     class Test_Delete {
 
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            Integer round = 1111;
+            LocalDate date = LocalDate.parse("2024-03-16");
+            Long totalWinningAmount = 10000L;
+
+            Rank rank = Rank.builder()
+                    .ranking(1)
+                    .winningCount(1)
+                    .totalWinningAmount(1L)
+                    .winningAmount(1L)
+                    .build();
+
+            List<Rank> rankList = List.of(rank);
+
+            Optional<WinningReport> existingWinningReport = Optional.ofNullable(winningReportRepository.findByRound(round));
+
+            if(existingWinningReport.isEmpty()) {
+                WinningReport winningReport = WinningReport.builder()
+                        .round(round)
+                        .date(date)
+                        .totalWinningAmount(totalWinningAmount)
+                        .rankList(rankList)
+                        .build();
+
+                winningReportRepository.save(winningReport);
+            }
+        }
+
         @Test
         @DisplayName("성공")
         void success() {
             // given
-            Integer round = 1112;
+            Integer round = 1111;
 
             // when
             Integer deleteCount = winningReportRepository.deleteByRound(round);
@@ -288,6 +398,13 @@ public class WinningReportRepositoryUnitTest {
 
         }
 
+    }
+
+    @AfterEach
+    @DisplayName("데이터 정리")
+    void clear() {
+        mongoTemplate.dropCollection("winning_report");
+        mongoTemplate.dropCollection("rank");
     }
 
 }
