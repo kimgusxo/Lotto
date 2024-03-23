@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface ResultRepository extends MongoRepository<Result, String> {
 
+    boolean existsByRound(Integer round);
+
     Result findByRound(Integer round);
     List<Result> findByBonusNumber(Integer bonusNumber);
     List<Result> findByNumbersContaining(Integer number);

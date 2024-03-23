@@ -1,7 +1,10 @@
 package com.example.lotto.unit.service;
 
+import com.example.lotto.domain.Result;
+import com.example.lotto.domain.dto.ResultDTO;
 import com.example.lotto.repository.ResultRepository;
 import com.example.lotto.service.ResultService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,6 +12,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class ResultServiceUnitTest {
@@ -23,6 +38,24 @@ public class ResultServiceUnitTest {
     @DisplayName("Read 테스트")
     class Test_Read {
 
+        private Result result;
+
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            Integer round = 1111;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
+
+            result = Result.builder()
+                    .round(round)
+                    .numbers(numbers)
+                    .bonusNumber(bonusNumber)
+                    .date(date)
+                    .build();
+        }
+
         @Nested
         @DisplayName("readByRound 테스트")
         class Test_ReadByRound {
@@ -31,10 +64,19 @@ public class ResultServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
+                Integer round = 1111;
+                given(resultRepository.existsByRound(round)).willReturn(false);
+                given(resultRepository.findByRound(round)).willReturn(result);
 
                 // when
+                ResultDTO resultDTO = resultService.readByRound(round);
 
                 // then
+                assertThat(resultDTO.getRound())
+                        .isEqualTo(round);
+
+                then(resultRepository).should(times(1)).existsByRound(round);
+                then(resultRepository).should(times(1)).findByRound(round);
 
             }
 
@@ -42,10 +84,16 @@ public class ResultServiceUnitTest {
             @DisplayName("실패")
             void fail() {
                 // given
+                Integer round = -1;
+                given(resultRepository.existsByRound(round)).willReturn(true);
+                given(resultRepository.findByRound(round)).willReturn(null);
 
-                // when
+                // when & then
+                assertThatThrownBy(() -> resultService.readByRound(round))
+                        .isInstanceOf(NotExistRoundException.class);
 
-                // then
+                then(resultRepository).should(times(1)).existsByRound(round);
+                then(resultRepository).should(times(1)).findByRound(round);
             }
         }
 
@@ -57,62 +105,101 @@ public class ResultServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
+                Integer bonusNumber = 4;
+                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+
+                given(resultRepository.findByBonusNumber(bonusNumber)).willReturn(reusltList);
 
                 // when
+                List<ResultDTO> resultDTOList = resultService.readByBonusNumber(bonusNumber);
 
                 // then
+                assertThat(resultDTOList)
+                        .isNotEmpty();
+
+                then(resultRepository).should(times(1)).findByBonusNumber(bonusNumber);
             }
 
             @Test
             @DisplayName("실패")
             void fail() {
                 // given
+                Integer bonusNumber = -1;
+                List<Result> resultList = new ArrayList<>();
 
-                // when
+                given(resultRepository.findByBonusNumber(bonusNumber)).willReturn(resultList);
 
-                // then
+                // when & then
+                assertThatThrownBy(() -> resultService.readByBonusNumber)
+                        .isInstanceOf(NotExistBonusNumberException.class);
 
+                then(resultRepository).should(times(1)).findByBonusNumber(bonusNumber);
             }
         }
 
         @Nested
-        @DisplayName("readByNumbers 테스트")
-        class Test_ReadByNumbers {
+        @DisplayName("readByNumber 테스트")
+        class Test_ReadByNumber {
 
             @Test
             @DisplayName("성공")
             void success() {
                 // given
+                Integer number = 45;
+                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+
+                given(resultRepository.findByNumbersContaining(number)).willReturn(resultList);
 
                 // when
+                List<ResultDTO> resultDTOList = resultService.readByNumber(number);
 
                 // then
+                assertThat(resultDTOList)
+                        .isNotEmpty();
 
+                then(resultRepository).should(times(1)).findByNumbersContaining(number);
             }
 
             @Test
             @DisplayName("실패")
             void fail() {
                 // given
+                Integer number = -1;
+                List<Result> resultList = new ArrayList<>();
 
-                // when
+                given(resultRepository.findByNumbersContaining(number)).willReturn(resultList);
 
-                // then
+                // when & then
+                assertThatThrownBy(() -> resultService.readByNumber(number))
+                        .isInstanceOf(NotExistNumberException.class);
 
+                then(resultRepository).should(times(1)).findByNumbersContaining(number);
             }
         }
 
         @Nested
         @DisplayName("readByDate 테스트")
         class Test_ReadByDate {
+
             @Test
             @DisplayName("성공")
             void success() {
                 // given
+                LocalDate startDate = LocalDate.parse("2024-03-01");
+                LocalDate endDate = LocalDate.parse("2024-03-31");
+
+                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+
+                given(resultRepository.findByDateBetween(startDate, endDate)).willReturn(resultList);
 
                 // when
+                List<ResultDTO> resultDTOList = resultService.readByDate(startDate, endDate);
 
                 // then
+                assertThat(resultDTOList)
+                        .isNotEmpty();
+
+                then(resultRepository).should(times(1)).findByDateBetween(startDate, endDate);
 
             }
 
@@ -120,11 +207,18 @@ public class ResultServiceUnitTest {
             @DisplayName("실패")
             void fail() {
                 // given
+                LocalDate startDate = LocalDate.parse("1000-01-01");
+                LocalDate endDate = LocalDate.parse("1000-01-02");
 
-                // when
+                List<Result> resultList = new ArrayList<>();
 
-                // then
+                given(resultRepository.findByDateBetween(startDate, endDate)).willReturn(resultList);
 
+                // when & then
+                assertThatThrownBy(() -> resultService.readByDate(startDate, endDate))
+                        .isInstanceOf(InCorrectDateException.class);
+
+                then(resultRepository).should(times(1)).findByDateBetween(startDate, endDate);
             }
         }
 
