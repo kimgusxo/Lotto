@@ -88,6 +88,7 @@ public class ResultServiceUnitTest {
                 // given
                 Integer round = -1;
                 given(resultRepository.existsByRound(round)).willReturn(true);
+                given(resultRepository.findByRound(round)).willReturn(null);
 
                 // when & then
                 assertThatThrownBy(() -> resultService.readByRound(round))
@@ -99,7 +100,7 @@ public class ResultServiceUnitTest {
         }
 
         @Nested
-        @DisplayName("readByBonusNumber")
+        @DisplayName("readByBonusNumber 테스트")
         class Test_ReadByBonusNumber {
 
             @Test
@@ -109,7 +110,7 @@ public class ResultServiceUnitTest {
                 Integer bonusNumber = 4;
                 List<Result> resultList = new ArrayList<>(Arrays.asList(result));
 
-                given(resultRepository.findByBonusNumber(bonusNumber)).willReturn(reusltList);
+                given(resultRepository.findByBonusNumber(bonusNumber)).willReturn(resultList);
 
                 // when
                 List<ResultDTO> resultDTOList = resultService.readByBonusNumber(bonusNumber);
@@ -131,7 +132,7 @@ public class ResultServiceUnitTest {
                 given(resultRepository.findByBonusNumber(bonusNumber)).willReturn(resultList);
 
                 // when & then
-                assertThatThrownBy(() -> resultService.readByBonusNumber)
+                assertThatThrownBy(() -> resultService.readByBonusNumber(bonusNumber))
                         .isInstanceOf(NotExistBonusNumberException.class);
 
                 then(resultRepository).should(times(1)).findByBonusNumber(bonusNumber);
@@ -256,7 +257,7 @@ public class ResultServiceUnitTest {
             given(resultRepository.insert(result)).willReturn(result);
 
             // when
-            ResultDTO savedResultDTO = resultService.insert(result);
+            ResultDTO savedResultDTO = resultService.insert(result.toDTO());
 
             // then
             assertThat(savedResultDTO)
@@ -293,7 +294,7 @@ public class ResultServiceUnitTest {
 
             // when & then
             assertThatThrownBy(() -> resultService.insert(resultDTO))
-                    .isInstanceOf(DuplicateRoundException.class);
+                    .isInstanceOf(DuplicateResultException.class);
 
             then(resultRepository).should(times(1)).existsByRound(resultDTO.getRound());
             then(resultRepository).should(times(1)).insert(result);
@@ -347,7 +348,7 @@ public class ResultServiceUnitTest {
 
         @Test
         @DisplayName("실패(없는 문서 업데이트 시)")
-        void fail() {
+        void fail_null() {
             // given
             ResultDTO resultDTO = ResultDTO.builder()
                     .round(0)
@@ -362,11 +363,17 @@ public class ResultServiceUnitTest {
             given(resultRepository.save(result)).willThrow(NullPointerException.class);
 
             // when & then
-            assertThatThrownBy(() -> resultService.update(resultDTO))
+            assertThatThrownBy(() -> resultService.update(result.getRound(), resultDTO))
                     .isInstanceOf(NullPointerException.class);
 
             then(resultRepository).should(times(1)).findByRound(result.getRound());
             then(resultRepository).should(times(1)).save(result);
+        }
+
+        @Test
+        @DisplayName("실패(중복 문서 업데이트 시")
+        void fail_duplication() {
+
         }
 
     }
