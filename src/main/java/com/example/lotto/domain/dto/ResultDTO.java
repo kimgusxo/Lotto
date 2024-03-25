@@ -1,5 +1,6 @@
 package com.example.lotto.domain.dto;
 
+import com.example.lotto.domain.Result;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Past;
@@ -26,5 +27,14 @@ public class ResultDTO {
 
     @Past
     private LocalDate date;
+
+    public Result toEntity() {
+        return Result.builder()
+                .round(round)
+                .numbers(numbers)
+                .bonusNumber(bonusNumber)
+                .date(date)
+                .build();
+    }
 
 }

@@ -312,8 +312,8 @@ public class ResultRepositoryUnitTest {
             Result updateResult = resultRepository.save(result);
 
             // then
-            assertThat(updateResult.getRound())
-                    .isEqualTo(updateRound);
+            assertThat(updateResult.getId())
+                    .isEqualTo(result.getId());
 
         }
 

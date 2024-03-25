@@ -4,6 +4,7 @@ import com.example.lotto.domain.Result;
 import com.example.lotto.domain.dto.ResultDTO;
 import com.example.lotto.repository.ResultRepository;
 import com.example.lotto.service.ResultService;
+import com.mongodb.DuplicateKeyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -33,6 +34,7 @@ public class ResultServiceUnitTest {
 
     @InjectMocks
     private ResultService resultService;
+
 
     @Nested
     @DisplayName("Read 테스트")
@@ -86,7 +88,6 @@ public class ResultServiceUnitTest {
                 // given
                 Integer round = -1;
                 given(resultRepository.existsByRound(round)).willReturn(true);
-                given(resultRepository.findByRound(round)).willReturn(null);
 
                 // when & then
                 assertThatThrownBy(() -> resultService.readByRound(round))
@@ -227,53 +228,147 @@ public class ResultServiceUnitTest {
     @Nested
     @DisplayName("insert 테스트")
     class Test_Insert {
+
+        private ResultDTO resultDTO;
+
+       @BeforeEach
+       @DisplayName("데이터 설정")
+       void setUp() {
+           Integer round = 1111;
+           List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+           Integer bonusNumber = 4;
+           LocalDate date = LocalDate.parse("2024-03-16");
+
+           resultDTO = ResultDTO.builder()
+                   .round(round)
+                   .numbers(numbers)
+                   .bonusNumber(bonusNumber)
+                   .date(date)
+                   .build();
+       }
+
         @Test
         @DisplayName("성공")
         void success() {
             // given
+            Result result = resultDTO.toEntity();
+            given(resultRepository.existsByRound(resultDTO.getRound())).willReturn(false);
+            given(resultRepository.insert(result)).willReturn(result);
 
             // when
+            ResultDTO savedResultDTO = resultService.insert(result);
 
             // then
+            assertThat(savedResultDTO)
+                    .isEqualTo(resultDTO);
 
+            then(resultRepository).should(times(1)).insert(result);
         }
 
         @Test
-        @DisplayName("실패")
-        void fail() {
+        @DisplayName("실패(Repository 예외)")
+        void fail_repositoryException() {
             // given
+            Result result = resultDTO.toEntity();
 
-            // when
+            given(resultRepository.existsByRound(resultDTO.getRound())).willReturn(false);
+            given(resultRepository.insert(result)).willThrow(DuplicateKeyException.class);
 
-            // then
+            // when & then
+            assertThatThrownBy(() -> resultService.insert(resultDTO))
+                    .isInstanceOf(DuplicateKeyException.class);
 
+            then(resultRepository).should(times(1)).existsByRound(resultDTO.getRound());
+            then(resultRepository).should(times(1)).insert(result);
+        }
+
+        @Test
+        @DisplayName("실패(Service 예외)")
+        void fail_serviceException() {
+            // given
+            Result result = resultDTO.toEntity();
+
+            given(resultRepository.existsByRound(resultDTO.getRound())).willReturn(true);
+            given(resultRepository.insert(result)).willThrow(DuplicateKeyException.class);
+
+            // when & then
+            assertThatThrownBy(() -> resultService.insert(resultDTO))
+                    .isInstanceOf(DuplicateRoundException.class);
+
+            then(resultRepository).should(times(1)).existsByRound(resultDTO.getRound());
+            then(resultRepository).should(times(1)).insert(result);
         }
     }
 
     @Nested
     @DisplayName("update 테스트")
     class Test_Update {
+
+        private ResultDTO resultDTO;
+
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            Integer round = 1111;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
+
+            resultDTO = ResultDTO.builder()
+                    .round(round)
+                    .numbers(numbers)
+                    .bonusNumber(bonusNumber)
+                    .date(date)
+                    .build();
+        }
+
         @Test
         @DisplayName("성공")
         void success() {
             // given
+            Integer updateRound = 1112;
+
+            Result result = resultDTO.toEntity();
+            result.setRound(updateRound);
+
+            given(resultRepository.findByRound(result.getRound())).willReturn(result);
+            given(resultRepository.save(result)).willReturn(result);
 
             // when
+            ResultDTO updatedResultDTO = resultService.update(resultDTO);
 
             // then
+            assertThat(updatedResultDTO.getRound())
+                    .isEqualTo(updateRound);
 
+            then(resultRepository).should(times(1)).findByRound(result.getRound());
+            then(resultRepository).should(times(1)).save(result);
         }
 
         @Test
-        @DisplayName("실패")
+        @DisplayName("실패(없는 문서 업데이트 시)")
         void fail() {
             // given
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .round(0)
+                    .numbers(Arrays.asList(0, 0, 0, 0, 0, 0))
+                    .bonusNumber(0)
+                    .date(LocalDate.now())
+                    .build();
 
-            // when
+            Result result = resultDTO.toEntity();
 
-            // then
+            given(resultRepository.findByRound(result.getRound())).willReturn(null);
+            given(resultRepository.save(result)).willThrow(NullPointerException.class);
 
+            // when & then
+            assertThatThrownBy(() -> resultService.update(resultDTO))
+                    .isInstanceOf(NullPointerException.class);
+
+            then(resultRepository).should(times(1)).findByRound(result.getRound());
+            then(resultRepository).should(times(1)).save(result);
         }
+
     }
 
     @Nested
@@ -283,10 +378,15 @@ public class ResultServiceUnitTest {
         @DisplayName("성공")
         void success() {
             // given
+            Integer round = 1111;
+
+            given(resultRepository.deleteByRound(round)).willReturn(1);
 
             // when
+            resultService.delete(round);
 
             // then
+            then(resultRepository).should(times(1)).deleteByRound(round);
 
         }
 
@@ -294,11 +394,15 @@ public class ResultServiceUnitTest {
         @DisplayName("실패")
         void fail() {
             // given
+            Integer round = 0;
 
-            // when
+            given(resultRepository.deleteByRound(round)).willReturn(0);
 
-            // then
+            // when & then
+            assertThatThrownBy(() -> resultService.delete(round))
+                    .isInstanceOf(NotExistResultException.class);
 
+            then(resultRepository).should(times(1)).deleteByRound(round);
         }
     }
 
