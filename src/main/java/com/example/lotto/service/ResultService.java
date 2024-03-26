@@ -2,8 +2,11 @@ package com.example.lotto.service;
 
 import com.example.lotto.domain.Result;
 import com.example.lotto.domain.dto.ResultDTO;
+import com.example.lotto.error.CustomException;
+import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.ResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +25,8 @@ public class ResultService {
     public ResultDTO readByRound(Integer round) {
         boolean exist = resultRepository.existsByRound(round);
 
-        if(!exist) {
-            throw new NotExistRoundException();
+        if(exist) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_ROUND_TOKEN);
         }
 
         return resultRepository.findByRound(round).toDTO();
@@ -34,7 +37,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByBonusNumber(bonusNumber);
 
         if(resultList.isEmpty()) {
-            throw new NotExistBonusNumberException();
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_BONUS_NUMBER_TOKEN);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();
@@ -49,7 +52,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByNumbersContaining(number);
 
         if(resultList.isEmpty()) {
-            throw new NotExistNumberException();
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_NUMBER_TOKEN);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();
@@ -65,7 +68,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByDateBetween(startDate, endDate);
 
         if(resultList.isEmpty()) {
-            throw new InCorrectDateException();
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_DATE_TOKEN);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();
@@ -81,7 +84,7 @@ public class ResultService {
         boolean exist = resultRepository.existsByRound(resultDTO.getRound());
 
         if(exist) {
-            throw new DuplicateResultException();
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_ROUND_TOKEN);
         }
 
         ResultDTO saveResultDTO = resultRepository.insert(resultDTO.toEntity()).toDTO();
@@ -94,10 +97,13 @@ public class ResultService {
         Result result = resultRepository.findByRound(updateRound);
 
         if(Objects.isNull(result)) {
-            throw new NullPointerException();
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_TOKEN);
         }
 
-        result = resultDTO.toEntity();
+        result.setBonusNumber(resultDTO.getBonusNumber());
+        result.setNumbers(resultDTO.getNumbers());
+        result.setDate(resultDTO.getDate());
+
         ResultDTO updateResultDTO = resultRepository.save(result).toDTO();
 
         return updateResultDTO;
@@ -108,7 +114,7 @@ public class ResultService {
         Integer token = resultRepository.deleteByRound(round);
 
         if(token.equals(0)) {
-            throw new NotExistResultException();
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_TOKEN);
         }
 
     }

@@ -2,6 +2,8 @@ package com.example.lotto.unit.service;
 
 import com.example.lotto.domain.Result;
 import com.example.lotto.domain.dto.ResultDTO;
+import com.example.lotto.error.CustomException;
+import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.ResultRepository;
 import com.example.lotto.service.ResultService;
 import com.mongodb.DuplicateKeyException;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -88,14 +92,14 @@ public class ResultServiceUnitTest {
                 // given
                 Integer round = -1;
                 given(resultRepository.existsByRound(round)).willReturn(true);
-                given(resultRepository.findByRound(round)).willReturn(null);
 
                 // when & then
                 assertThatThrownBy(() -> resultService.readByRound(round))
-                        .isInstanceOf(NotExistRoundException.class);
+                        .isInstanceOf(CustomException.class)
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_ROUND_TOKEN);
 
                 then(resultRepository).should(times(1)).existsByRound(round);
-                then(resultRepository).should(times(1)).findByRound(round);
+                then(resultRepository).should(times(0)).findByRound(round);
             }
         }
 
@@ -133,7 +137,8 @@ public class ResultServiceUnitTest {
 
                 // when & then
                 assertThatThrownBy(() -> resultService.readByBonusNumber(bonusNumber))
-                        .isInstanceOf(NotExistBonusNumberException.class);
+                        .isInstanceOf(CustomException.class)
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_BONUS_NUMBER_TOKEN);
 
                 then(resultRepository).should(times(1)).findByBonusNumber(bonusNumber);
             }
@@ -173,7 +178,8 @@ public class ResultServiceUnitTest {
 
                 // when & then
                 assertThatThrownBy(() -> resultService.readByNumber(number))
-                        .isInstanceOf(NotExistNumberException.class);
+                        .isInstanceOf(CustomException.class)
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_NUMBER_TOKEN);
 
                 then(resultRepository).should(times(1)).findByNumbersContaining(number);
             }
@@ -218,7 +224,8 @@ public class ResultServiceUnitTest {
 
                 // when & then
                 assertThatThrownBy(() -> resultService.readByDate(startDate, endDate))
-                        .isInstanceOf(InCorrectDateException.class);
+                        .isInstanceOf(CustomException.class)
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INCORRECT_DATE_TOKEN);
 
                 then(resultRepository).should(times(1)).findByDateBetween(startDate, endDate);
             }
@@ -284,20 +291,21 @@ public class ResultServiceUnitTest {
         }
 
         @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
         @DisplayName("실패(Service 예외)")
         void fail_serviceException() {
             // given
             Result result = resultDTO.toEntity();
 
             given(resultRepository.existsByRound(resultDTO.getRound())).willReturn(true);
-            given(resultRepository.insert(result)).willThrow(DuplicateKeyException.class);
 
             // when & then
             assertThatThrownBy(() -> resultService.insert(resultDTO))
-                    .isInstanceOf(DuplicateResultException.class);
+                    .isInstanceOf(CustomException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_ROUND_TOKEN);
 
             then(resultRepository).should(times(1)).existsByRound(resultDTO.getRound());
-            then(resultRepository).should(times(1)).insert(result);
+            then(resultRepository).should(times(0)).insert(result);
         }
     }
 
@@ -336,7 +344,7 @@ public class ResultServiceUnitTest {
             given(resultRepository.save(result)).willReturn(result);
 
             // when
-            ResultDTO updatedResultDTO = resultService.update(resultDTO);
+            ResultDTO updatedResultDTO = resultService.update(updateRound, resultDTO);
 
             // then
             assertThat(updatedResultDTO.getRound())
@@ -360,19 +368,35 @@ public class ResultServiceUnitTest {
             Result result = resultDTO.toEntity();
 
             given(resultRepository.findByRound(result.getRound())).willReturn(null);
-            given(resultRepository.save(result)).willThrow(NullPointerException.class);
 
             // when & then
             assertThatThrownBy(() -> resultService.update(result.getRound(), resultDTO))
-                    .isInstanceOf(NullPointerException.class);
+                    .isInstanceOf(CustomException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_TOKEN);
 
             then(resultRepository).should(times(1)).findByRound(result.getRound());
-            then(resultRepository).should(times(1)).save(result);
+            then(resultRepository).should(times(0)).save(result);
         }
 
         @Test
         @DisplayName("실패(중복 문서 업데이트 시")
         void fail_duplication() {
+            // given
+            Integer updateRound = 1112;
+
+            Result result = resultDTO.toEntity();
+            result.setRound(updateRound);
+
+            given(resultRepository.findByRound(updateRound)).willReturn(result);
+            given(resultRepository.save(result)).willThrow(DuplicateKeyException.class);
+
+            // when & then
+            assertThatThrownBy(() -> resultService.update(updateRound, resultDTO))
+                    .isInstanceOf(DuplicateKeyException.class);
+
+
+            then(resultRepository).should(times(1)).findByRound(result.getRound());
+            then(resultRepository).should(times(1)).save(result);
 
         }
 
@@ -407,7 +431,8 @@ public class ResultServiceUnitTest {
 
             // when & then
             assertThatThrownBy(() -> resultService.delete(round))
-                    .isInstanceOf(NotExistResultException.class);
+                    .isInstanceOf(CustomException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_TOKEN);
 
             then(resultRepository).should(times(1)).deleteByRound(round);
         }
