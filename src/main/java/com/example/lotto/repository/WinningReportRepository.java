@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface WinningReportRepository extends MongoRepository<WinningReport, String> {
 
+    boolean existsByRound(Integer round);
+
     WinningReport findByRound(Integer round);
     List<WinningReport> findByDateBetween(LocalDate startDate, LocalDate endDate);
     List<WinningReport> findByTotalWinningAmountGreaterThanEqual(Long totalWinningAmount);

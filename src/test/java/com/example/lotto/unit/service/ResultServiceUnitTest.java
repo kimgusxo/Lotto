@@ -260,11 +260,12 @@ public class ResultServiceUnitTest {
         void success() {
             // given
             Result result = resultDTO.toEntity();
+
             given(resultRepository.existsByRound(resultDTO.getRound())).willReturn(false);
             given(resultRepository.insert(result)).willReturn(result);
 
             // when
-            ResultDTO savedResultDTO = resultService.insert(result.toDTO());
+            ResultDTO savedResultDTO = resultService.insert(resultDTO);
 
             // then
             assertThat(savedResultDTO)
@@ -355,7 +356,29 @@ public class ResultServiceUnitTest {
         }
 
         @Test
-        @DisplayName("실패(없는 문서 업데이트 시)")
+        @DisplayName("실패(Repository 예외)")
+        void fail_duplication() {
+            // given
+            Integer updateRound = 1112;
+
+            Result result = resultDTO.toEntity();
+            result.setRound(updateRound);
+
+            given(resultRepository.findByRound(updateRound)).willReturn(result);
+            given(resultRepository.save(result)).willThrow(DuplicateKeyException.class);
+
+            // when & then
+            assertThatThrownBy(() -> resultService.update(updateRound, resultDTO))
+                    .isInstanceOf(DuplicateKeyException.class);
+
+
+            then(resultRepository).should(times(1)).findByRound(result.getRound());
+            then(resultRepository).should(times(1)).save(result);
+
+        }
+
+        @Test
+        @DisplayName("실패(Service 예외)")
         void fail_null() {
             // given
             ResultDTO resultDTO = ResultDTO.builder()
@@ -376,28 +399,6 @@ public class ResultServiceUnitTest {
 
             then(resultRepository).should(times(1)).findByRound(result.getRound());
             then(resultRepository).should(times(0)).save(result);
-        }
-
-        @Test
-        @DisplayName("실패(중복 문서 업데이트 시")
-        void fail_duplication() {
-            // given
-            Integer updateRound = 1112;
-
-            Result result = resultDTO.toEntity();
-            result.setRound(updateRound);
-
-            given(resultRepository.findByRound(updateRound)).willReturn(result);
-            given(resultRepository.save(result)).willThrow(DuplicateKeyException.class);
-
-            // when & then
-            assertThatThrownBy(() -> resultService.update(updateRound, resultDTO))
-                    .isInstanceOf(DuplicateKeyException.class);
-
-
-            then(resultRepository).should(times(1)).findByRound(result.getRound());
-            then(resultRepository).should(times(1)).save(result);
-
         }
 
     }

@@ -1,5 +1,6 @@
 package com.example.lotto.domain;
 
+import com.example.lotto.domain.dto.RankDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +21,17 @@ public class Rank {
 
     @Indexed(unique = true)
     private Integer ranking;
-
     private Integer winningCount;
     private Long totalWinningAmount;
     private Long winningAmount;
+
+    public RankDTO toDTO() {
+        return RankDTO.builder()
+                .ranking(ranking)
+                .winningCount(winningCount)
+                .totalWinningAmount(totalWinningAmount)
+                .winningAmount(winningAmount)
+                .build();
+    }
 
 }

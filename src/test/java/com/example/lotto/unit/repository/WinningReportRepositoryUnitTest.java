@@ -1,7 +1,6 @@
 package com.example.lotto.unit.repository;
 
 import com.example.lotto.domain.Rank;
-import com.example.lotto.domain.Result;
 import com.example.lotto.domain.WinningReport;
 import com.example.lotto.repository.WinningReportRepository;
 import org.junit.jupiter.api.*;
