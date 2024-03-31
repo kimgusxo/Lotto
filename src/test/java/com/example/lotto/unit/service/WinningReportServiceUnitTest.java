@@ -96,7 +96,7 @@ public class WinningReportServiceUnitTest {
             void fail() {
                 // given
                 Integer round = -1;
-                given(winningReportRepository.existsByRound(round)).willReturn(true);
+                given(winningReportRepository.existsByRound(round)).willReturn(false);
 
                 // when & then
                 assertThatThrownBy(() -> winningReportService.readByRound(round))
@@ -258,7 +258,7 @@ public class WinningReportServiceUnitTest {
             WinningReport winningReport = winningReportDTO.toEntity();
 
             given(winningReportRepository.existsByRound(winningReport.getRound())).willReturn(false);
-            given(winningReportRepository.insert(winningReport)).willReturn(winningReport);
+            given(winningReportRepository.insert(winningReport)).willThrow(DuplicateKeyException.class);
 
             // when & then
             assertThatThrownBy(() -> winningReportService.insert(winningReportDTO))
@@ -277,11 +277,12 @@ public class WinningReportServiceUnitTest {
             given(winningReportRepository.existsByRound(winningReport.getRound())).willReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> winningReportService.insert(winningReport.toDTO()))
+            assertThatThrownBy(() -> winningReportService.insert(winningReportDTO))
                     .isInstanceOf(CustomException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_ROUND_TOKEN);
 
-            then(winningReportRepository).should(times(1)).insert(winningReport);
+            then(winningReportRepository).should(times(1)).existsByRound(winningReport.getRound());
+            then(winningReportRepository).should(times(0)).insert(winningReport);
         }
     }
 
