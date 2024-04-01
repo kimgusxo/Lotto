@@ -239,21 +239,21 @@ public class ResultServiceUnitTest {
 
         private ResultDTO resultDTO;
 
-       @BeforeEach
-       @DisplayName("데이터 설정")
-       void setUp() {
-           Integer round = 1111;
-           List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
-           Integer bonusNumber = 4;
-           LocalDate date = LocalDate.parse("2024-03-16");
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            Integer round = 1111;
+            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            Integer bonusNumber = 4;
+            LocalDate date = LocalDate.parse("2024-03-16");
 
-           resultDTO = ResultDTO.builder()
-                   .round(round)
-                   .numbers(numbers)
-                   .bonusNumber(bonusNumber)
-                   .date(date)
-                   .build();
-       }
+            resultDTO = ResultDTO.builder()
+                    .round(round)
+                    .numbers(numbers)
+                    .bonusNumber(bonusNumber)
+                    .date(date)
+                    .build();
+        }
 
         @Test
         @DisplayName("성공")
