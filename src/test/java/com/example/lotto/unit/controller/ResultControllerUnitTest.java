@@ -1,10 +1,12 @@
 package com.example.lotto.unit.controller;
 
+import com.example.lotto.controller.ResultController;
 import com.example.lotto.domain.dto.ResultDTO;
 import com.example.lotto.error.CustomException;
 import com.example.lotto.error.ErrorCode;
 import com.example.lotto.service.ResultService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -77,7 +79,7 @@ public class ResultControllerUnitTest {
                 given(resultService.readByRound(round)).willReturn(resultDTO);
 
                 // when & then
-                mvc.perform(get("/result/get/round" + round)
+                mvc.perform(get("/result/get/round/" + round)
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.round").value(round))
                         .andExpect(status().isOk());
@@ -115,7 +117,7 @@ public class ResultControllerUnitTest {
                 given(resultService.readByBonusNumber(bonusNumber)).willReturn(resultDTOList);
 
                 // when & then
-                mvc.perform(get("/result/get/bonus-number/" + bonusNumber)
+                mvc.perform(get("/result/get/bonusNumber/" + bonusNumber)
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$", hasSize(1)))
                         .andExpect(jsonPath("$[0].bonusNumber").value(bonusNumber))
@@ -133,7 +135,7 @@ public class ResultControllerUnitTest {
                 given(resultService.readByBonusNumber(bonusNumber)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
                 // when & then
-                mvc.perform(get("/result/get/bonus-number/" + bonusNumber)
+                mvc.perform(get("/result/get/bonusNumber/" + bonusNumber)
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
@@ -156,7 +158,7 @@ public class ResultControllerUnitTest {
                 given(resultService.readByNumber(number)).willReturn(resultDTOList);
 
                 // when & then
-                mvc.perform(get("/result/get/number" + number)
+                mvc.perform(get("/result/get/number/" + number)
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$", hasSize(1)))
                         .andExpect(jsonPath("$[0].numbers", hasSize(6)))
@@ -232,10 +234,14 @@ public class ResultControllerUnitTest {
     class Test_POST {
 
         private ResultDTO resultDTO;
+        private ObjectMapper objectMapper;
 
         @BeforeEach
         @DisplayName("데이터 설정")
         void setUp() {
+            objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
             Integer round = 1111;
             List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
             Integer bonusNumber = 4;
@@ -258,7 +264,6 @@ public class ResultControllerUnitTest {
                 // given
                 given(resultService.insert(resultDTO)).willReturn(resultDTO);
 
-                ObjectMapper objectMapper = new ObjectMapper();
                 String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
 
 
@@ -280,7 +285,6 @@ public class ResultControllerUnitTest {
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
                 given(resultService.insert(resultDTO)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
-                ObjectMapper objectMapper = new ObjectMapper();
                 String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
 
                 // when & then
@@ -300,10 +304,14 @@ public class ResultControllerUnitTest {
     class Test_PUT {
 
         private ResultDTO updateResultDTO;
+        private ObjectMapper objectMapper;
 
         @BeforeEach
         @DisplayName("데이터 설정")
         void setUp() {
+            objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
             Integer round = 1111;
             List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
             Integer bonusNumber = 4;
@@ -326,11 +334,10 @@ public class ResultControllerUnitTest {
                 // given
                 given(resultService.update(updateResultDTO.getRound(), updateResultDTO)).willReturn(updateResultDTO);
 
-                ObjectMapper objectMapper = new ObjectMapper();
                 String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                 // when & then
-                mvc.perform(put("/result/put/update")
+                mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(updateResultDTOJson))
                         .andExpect(jsonPath("$.round").value(updateResultDTO.getRound()))
@@ -348,11 +355,10 @@ public class ResultControllerUnitTest {
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
                 given(resultService.update(updateResultDTO.getRound(), updateResultDTO)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
-                ObjectMapper objectMapper = new ObjectMapper();
                 String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                 // when & then
-                mvc.perform(put("/result/put/update")
+                mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updateResultDTOJson))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
