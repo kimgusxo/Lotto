@@ -405,4 +405,12 @@ public class ResultControllerUnitTest {
         }
     }
 
+    @Nested
+    @DisplayName("Valid 테스트")
+    class Test_Valid {
+
+
+
+    }
+
 }

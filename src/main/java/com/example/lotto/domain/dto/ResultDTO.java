@@ -1,9 +1,7 @@
 package com.example.lotto.domain.dto;
 
 import com.example.lotto.domain.Result;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,13 +12,14 @@ import java.util.List;
 @Builder
 public class ResultDTO {
 
+    @NotNull
     @Min(value = 1)
     private Integer round;
 
-    @Min(value = 1)
-    @Max(value = 45)
-    private List<Integer> numbers;
+    @Size(min = 1, max = 6)
+    private List<@Min(value = 1) @Max(value = 45) Integer> numbers;
 
+    @NotNull
     @Min(value = 1)
     @Max(value = 45)
     private Integer bonusNumber;
