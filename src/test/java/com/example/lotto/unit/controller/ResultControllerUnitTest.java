@@ -266,7 +266,6 @@ public class ResultControllerUnitTest {
 
                 String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
 
-
                 // when & then
                 mvc.perform(post("/result/post/insert")
                                 .contentType(MediaType.APPLICATION_JSON)
