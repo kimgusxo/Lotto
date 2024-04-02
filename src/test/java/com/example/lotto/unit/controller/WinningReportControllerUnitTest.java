@@ -1,5 +1,6 @@
 package com.example.lotto.unit.controller;
 
+import com.example.lotto.controller.WinningReportController;
 import com.example.lotto.domain.dto.RankDTO;
 import com.example.lotto.domain.dto.WinningReportDTO;
 import com.example.lotto.error.CustomException;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(WinningReportController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class WinningReportControllerUnitTest {
 
@@ -132,7 +133,7 @@ public class WinningReportControllerUnitTest {
                 mvc.perform(get("/winningReport/get/date?startDate=" + startDate + "&endDate=" + endDate)
                             .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$", hasSize(1)))
-                        .andExpect(jsonPath("$[0]").value("2024-03-16"))
+                        .andExpect(jsonPath("$[0].date").value("2024-03-16"))
                         .andExpect(status().isOk());
 
             }
@@ -172,7 +173,7 @@ public class WinningReportControllerUnitTest {
 
                 List<WinningReportDTO> winningReportDTOList = new ArrayList<>(Arrays.asList(winningReportDTO));
 
-                given(winningReportService.readByTotalWinningAmount(totalWinningAmount)).willReturn()
+                given(winningReportService.readByTotalWinningAmount(totalWinningAmount)).willReturn(winningReportDTOList);
 
                 // when & then
                 mvc.perform(get("/winningReport/get/totalWinningAmount/" + totalWinningAmount)
@@ -256,13 +257,12 @@ public class WinningReportControllerUnitTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(winningReportDTOJson))
                         .andExpect(jsonPath("$.round").value(winningReportDTO.getRound()))
-                        .andExpect(jsonPath("$.date").value(winningReportDTO.getDate()))
+                        .andExpect(jsonPath("$.date").value(winningReportDTO.getDate().toString()))
                         .andExpect(jsonPath("$.totalWinningAmount").value(winningReportDTO.getTotalWinningAmount()))
-                        .andExpect(jsonPath("$.rankList[0]", hasSize(1)))
-                        .andExpect(jsonPath("$.rankList[0].ranking").value(winningReportDTO.getRankDTOList().get(0).getRanking()))
-                        .andExpect(jsonPath("$.rankList[0].winningCount").value(winningReportDTO.getRankDTOList().get(0).getWinningCount()))
-                        .andExpect(jsonPath("$.rankList[0].totalWinningAmount").value(winningReportDTO.getRankDTOList().get(0).getTotalWinningAmount()))
-                        .andExpect(jsonPath("$.rankList[0].winningAmount").value(winningReportDTO.getRankDTOList().get(0).getWinningAmount()))
+                        .andExpect(jsonPath("$.rankDTOList[0].ranking").value(winningReportDTO.getRankDTOList().get(0).getRanking()))
+                        .andExpect(jsonPath("$.rankDTOList[0].winningCount").value(winningReportDTO.getRankDTOList().get(0).getWinningCount()))
+                        .andExpect(jsonPath("$.rankDTOList[0].totalWinningAmount").value(winningReportDTO.getRankDTOList().get(0).getTotalWinningAmount()))
+                        .andExpect(jsonPath("$.rankDTOList[0].winningAmount").value(winningReportDTO.getRankDTOList().get(0).getWinningAmount()))
                         .andExpect(status().isCreated());
             }
 
@@ -336,17 +336,16 @@ public class WinningReportControllerUnitTest {
                 String updateWinningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
 
                 // when & then
-                mvc.perform(put("/winningReport/put/update")
+                mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(updateWinningReportDTOJson))
                         .andExpect(jsonPath("$.round").value(updateWinningReportDTO.getRound()))
-                        .andExpect(jsonPath("$.date").value(updateWinningReportDTO.getDate()))
+                        .andExpect(jsonPath("$.date").value(updateWinningReportDTO.getDate().toString()))
                         .andExpect(jsonPath("$.totalWinningAmount").value(updateWinningReportDTO.getTotalWinningAmount()))
-                        .andExpect(jsonPath("$.rankList[0]", hasSize(1)))
-                        .andExpect(jsonPath("$.rankList[0].ranking").value(updateWinningReportDTO.getRankDTOList().get(0).getRanking()))
-                        .andExpect(jsonPath("$.rankList[0].winningCount").value(updateWinningReportDTO.getRankDTOList().get(0).getWinningCount()))
-                        .andExpect(jsonPath("$.rankList[0].totalWinningAmount").value(updateWinningReportDTO.getRankDTOList().get(0).getTotalWinningAmount()))
-                        .andExpect(jsonPath("$.rankList[0].winningAmount").value(updateWinningReportDTO.getRankDTOList().get(0).getWinningAmount()))
+                        .andExpect(jsonPath("$.rankDTOList[0].ranking").value(updateWinningReportDTO.getRankDTOList().get(0).getRanking()))
+                        .andExpect(jsonPath("$.rankDTOList[0].winningCount").value(updateWinningReportDTO.getRankDTOList().get(0).getWinningCount()))
+                        .andExpect(jsonPath("$.rankDTOList[0].totalWinningAmount").value(updateWinningReportDTO.getRankDTOList().get(0).getTotalWinningAmount()))
+                        .andExpect(jsonPath("$.rankDTOList[0].winningAmount").value(updateWinningReportDTO.getRankDTOList().get(0).getWinningAmount()))
                         .andExpect(status().isAccepted());
 
             }
@@ -362,7 +361,7 @@ public class WinningReportControllerUnitTest {
                 String updateWinningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
 
                 // when & then
-                mvc.perform(put("/winningReport/put/update")
+                mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updateWinningReportDTOJson))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
