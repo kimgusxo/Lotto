@@ -16,7 +16,7 @@ public class ResultDTO {
     @Min(value = 1)
     private Integer round;
 
-    @Size(min = 1, max = 6)
+    @Size(min = 6, max = 6)
     private List<@Min(value = 1) @Max(value = 45) Integer> numbers;
 
     @NotNull

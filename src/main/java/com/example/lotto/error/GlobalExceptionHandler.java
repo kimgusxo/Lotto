@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -32,4 +33,11 @@ public class GlobalExceptionHandler {
         ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidException(HandlerMethodValidationException ex) {
+        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
+
 }

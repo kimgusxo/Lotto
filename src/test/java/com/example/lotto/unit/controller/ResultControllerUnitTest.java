@@ -264,20 +264,20 @@ public class ResultControllerUnitTest {
                         .andExpect(status().isBadRequest());
             }
 
-        }
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                LocalDate inValidStartDate = LocalDate.parse("3000-03-01");
+                LocalDate inValidEndDate = LocalDate.parse("3000-03-31");
 
-        @Test
-        @DisplayName("실패(Validation 예외)")
-        void fail_valid() throws Exception {
-            // given
-            LocalDate inValidStartDate = LocalDate.parse("3000-03-01");
-            LocalDate inValidEndDate = LocalDate.parse("3000-03-31");
+                // when & then
+                mvc.perform(get("/result/get/date?startDate=" + inValidStartDate + "&endDate=" + inValidEndDate))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(status().isBadRequest());
+            }
 
-            // when & then
-            mvc.perform(get("/result/get/date?startDate=" + inValidStartDate + "&endDate=" + inValidEndDate))
-                    .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                    .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
-                    .andExpect(status().isBadRequest());
         }
 
     }
@@ -543,13 +543,14 @@ public class ResultControllerUnitTest {
                 @DisplayName("실패(Validation_Round 예외)")
                 void fail_valid_round() throws Exception {
                     // given
+                    Integer validRound = 1111;
                     Integer inValidRound = -1;
                     updateResultDTO.setRound(inValidRound);
 
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                     // when & then
-                    mvc.perform(post("/result/put/update/" + updateResultDTO.getRound())
+                    mvc.perform(put("/result/put/update/" + validRound)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
                             .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
@@ -567,7 +568,7 @@ public class ResultControllerUnitTest {
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                     // when & then
-                    mvc.perform(post("/result/post/insert")
+                    mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
                             .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
@@ -586,7 +587,7 @@ public class ResultControllerUnitTest {
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                     // when & then
-                    mvc.perform(post("/result/post/insert")
+                    mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
                             .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
@@ -605,7 +606,7 @@ public class ResultControllerUnitTest {
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                     // when & then
-                    mvc.perform(post("/result/post/insert")
+                    mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
                             .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
@@ -624,7 +625,7 @@ public class ResultControllerUnitTest {
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
 
                     // when & then
-                    mvc.perform(post("/result/post/insert")
+                    mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
                             .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
