@@ -86,10 +86,10 @@ public class ResultControllerUnitTest {
             }
 
             @Test
-            @DisplayName("실패")
+            @DisplayName("실패(Controller 예외)")
             void fail() throws Exception {
                 // given
-                Integer round = -1;
+                Integer round = 10000;
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_ROUND_TOKEN;
                 given(resultService.readByRound(round)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
@@ -98,6 +98,19 @@ public class ResultControllerUnitTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                Integer invalidRound = 0;
+
+                // when & then
+                mvc.perform(get("/result/get/round/" + invalidRound))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
                         .andExpect(status().isBadRequest());
             }
 
@@ -126,10 +139,10 @@ public class ResultControllerUnitTest {
             }
 
             @Test
-            @DisplayName("실패")
+            @DisplayName("실패(Controller 에외)")
             void fail() throws Exception {
                 // given
-                Integer bonusNumber = -1;
+                Integer bonusNumber = 1;
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_BONUS_NUMBER_TOKEN;
 
                 given(resultService.readByBonusNumber(bonusNumber)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
@@ -139,6 +152,19 @@ public class ResultControllerUnitTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                Integer inValidBonusNumber = -1;
+
+                // when & then
+                mvc.perform(get("/result/get/bonusNumber/" + inValidBonusNumber))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
                         .andExpect(status().isBadRequest());
             }
 
@@ -170,7 +196,7 @@ public class ResultControllerUnitTest {
             @DisplayName("실패")
             void fail() throws Exception {
                 // given
-                Integer number = -1;
+                Integer number = 1;
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_NUMBER_TOKEN;
 
                 given(resultService.readByNumber(number)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
@@ -180,6 +206,19 @@ public class ResultControllerUnitTest {
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                Integer inValidNumber = -1;
+
+                // when & then
+                mvc.perform(get("/result/get/number/" + inValidNumber))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
                         .andExpect(status().isBadRequest());
             }
         }
@@ -208,7 +247,7 @@ public class ResultControllerUnitTest {
             }
 
             @Test
-            @DisplayName("실패")
+            @DisplayName("실패(Controller 예외)")
             void fail() throws Exception {
                 // given
                 LocalDate startDate = LocalDate.parse("1000-03-01");
@@ -225,6 +264,20 @@ public class ResultControllerUnitTest {
                         .andExpect(status().isBadRequest());
             }
 
+        }
+
+        @Test
+        @DisplayName("실패(Validation 예외)")
+        void fail_valid() throws Exception {
+            // given
+            LocalDate inValidStartDate = LocalDate.parse("3000-03-01");
+            LocalDate inValidEndDate = LocalDate.parse("3000-03-31");
+
+            // when & then
+            mvc.perform(get("/result/get/date?startDate=" + inValidStartDate + "&endDate=" + inValidEndDate))
+                    .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                    .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                    .andExpect(status().isBadRequest());
         }
 
     }
@@ -278,7 +331,7 @@ public class ResultControllerUnitTest {
             }
 
             @Test
-            @DisplayName("실패")
+            @DisplayName("실패(Controller 예외)")
             void fail() throws Exception {
                 // given
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
@@ -294,8 +347,107 @@ public class ResultControllerUnitTest {
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());
             }
-        }
 
+            @Nested
+            @DisplayName("Validation 테스트")
+            class Test_Insert_Valid {
+                
+                @Test
+                @DisplayName("실패(Validation_Round 예외)")
+                void fail_valid_round() throws Exception {
+                    // given
+                    Integer inValidRound = -1;
+                    resultDTO.setRound(inValidRound);
+
+                    String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(resultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Numbers 예외)")
+                void fail_valid_numbers() throws Exception {
+                    // given
+                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+                    resultDTO.setNumbers(inValidNumbers);
+
+                    String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(resultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Number 예외)")
+                void fail_valid_number() throws Exception {
+                    // given
+                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 999));
+                    resultDTO.setNumbers(inValidNumbers);
+
+                    String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(resultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_BonusNumber 예외)")
+                void fail_valid_bonusNumber() throws Exception {
+                    // given
+                    Integer inValidBonusNumber = -1;
+                    resultDTO.setBonusNumber(inValidBonusNumber);
+
+                    String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(resultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Date 예외)")
+                void fail_valid_date() throws Exception {
+                    // given
+                    LocalDate inValidDate = LocalDate.parse("3000-03-01");
+                    resultDTO.setDate(inValidDate);
+
+                    String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(resultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+            }
+
+        }
     }
 
     @Nested
@@ -348,7 +500,7 @@ public class ResultControllerUnitTest {
             }
 
             @Test
-            @DisplayName("실패")
+            @DisplayName("실패(Controller 예외)")
             void fail() throws Exception {
                 // given
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
@@ -364,6 +516,123 @@ public class ResultControllerUnitTest {
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());
             }
+
+            @Nested
+            @DisplayName("Validation 테스트")
+            class Test_Update_Valid {
+
+                @Test
+                @DisplayName("실패(Validation_updateRound 예외")
+                void fail_valid_updateRound() throws Exception {
+                    // given
+                    Integer inValidUpdateRound = -1;
+
+                    String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
+
+                    // when & then
+                    mvc.perform(put("/result/put/update/" + inValidUpdateRound)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(updateResultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Round 예외)")
+                void fail_valid_round() throws Exception {
+                    // given
+                    Integer inValidRound = -1;
+                    updateResultDTO.setRound(inValidRound);
+
+                    String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/put/update/" + updateResultDTO.getRound())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(updateResultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Numbers 예외)")
+                void fail_valid_numbers() throws Exception {
+                    // given
+                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+                    updateResultDTO.setNumbers(inValidNumbers);
+
+                    String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(updateResultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Number 예외)")
+                void fail_valid_number() throws Exception {
+                    // given
+                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 999));
+                    updateResultDTO.setNumbers(inValidNumbers);
+
+                    String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(updateResultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_BonusNumber 예외)")
+                void fail_valid_bonusNumber() throws Exception {
+                    // given
+                    Integer inValidBonusNumber = -1;
+                    updateResultDTO.setBonusNumber(inValidBonusNumber);
+
+                    String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(updateResultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Date 예외)")
+                void fail_valid_date() throws Exception {
+                    // given
+                    LocalDate inValidDate = LocalDate.parse("3000-03-01");
+                    updateResultDTO.setDate(inValidDate);
+
+                    String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
+
+                    // when & then
+                    mvc.perform(post("/result/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(updateResultDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+            }
         }
     }
 
@@ -374,7 +643,7 @@ public class ResultControllerUnitTest {
         @Test
         @DisplayName("성공")
         void success() throws Exception {
-            // givenu
+            // given
             Integer round = 1111;
             willDoNothing().given(resultService).delete(round);
 
@@ -387,10 +656,10 @@ public class ResultControllerUnitTest {
         }
 
         @Test
-        @DisplayName("실패")
+        @DisplayName("실패(Controller 예외)")
         void fail() throws Exception {
             // given
-            Integer round = -1;
+            Integer round = 1;
             ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
 
             willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode)).given(resultService).delete(round);
@@ -403,14 +672,19 @@ public class ResultControllerUnitTest {
 
             then(resultService).should(times(1)).delete(round);
         }
-    }
 
-    @Nested
-    @DisplayName("Valid 테스트")
-    class Test_Valid {
+        @Test
+        @DisplayName("실패(Validation 예외)")
+        void fail_valid() throws Exception {
+            // given
+            Integer inValidRound = -1;
 
-
-
+            // when & then
+            mvc.perform(delete("/result/delete/" + inValidRound))
+                    .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                    .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
 }

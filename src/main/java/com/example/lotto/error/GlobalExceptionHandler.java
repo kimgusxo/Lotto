@@ -1,7 +1,9 @@
 package com.example.lotto.error;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -19,4 +21,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ErrorDTO.of(ex.getErrorCode()), ex.getStatus());
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorDTO> handleConstraintViolationException(ConstraintViolationException ex) {
+        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
+    }
 }

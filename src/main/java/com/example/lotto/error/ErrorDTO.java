@@ -1,7 +1,9 @@
 package com.example.lotto.error;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @Getter
 @Builder
