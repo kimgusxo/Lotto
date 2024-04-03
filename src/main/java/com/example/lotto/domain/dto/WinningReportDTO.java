@@ -15,7 +15,7 @@ import java.util.List;
 public class WinningReportDTO {
 
     @NotNull
-    @Min(1)
+    @Min(value = 1)
     private Integer round;
 
     @NotNull
@@ -23,10 +23,12 @@ public class WinningReportDTO {
     private LocalDate date;
 
     @NotNull
+    @Min(value = 1)
     private Long totalWinningAmount;
 
     @NotEmpty
     @Valid
+    @Size(min = 5, max = 5)
     private List<RankDTO> rankDTOList;
 
     public WinningReport toEntity() {

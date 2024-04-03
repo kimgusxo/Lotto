@@ -24,6 +24,7 @@ public class ResultDTO {
     @Max(value = 45)
     private Integer bonusNumber;
 
+    @NotNull
     @Past
     private LocalDate date;
 

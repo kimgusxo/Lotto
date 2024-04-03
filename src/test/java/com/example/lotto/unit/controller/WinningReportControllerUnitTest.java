@@ -24,6 +24,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.*;
@@ -98,7 +100,7 @@ public class WinningReportControllerUnitTest {
             @DisplayName("실패")
             void fail() throws Exception {
                 // given
-                Integer round = -1;
+                Integer round = 1;
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_ROUND_TOKEN;
 
                 given(winningReportService.readByRound(round)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
@@ -108,6 +110,20 @@ public class WinningReportControllerUnitTest {
                             .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
+
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                Integer inValidRound = -1;
+
+                // when & then
+                mvc.perform(get("/winningReport/get/round/" + inValidRound))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
                         .andExpect(status().isBadRequest());
 
             }
@@ -159,6 +175,21 @@ public class WinningReportControllerUnitTest {
 
             }
 
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                LocalDate inValidStartDate = LocalDate.parse("3000-03-01");
+                LocalDate inValidEndDate = LocalDate.parse("3000-03-31");
+
+                // when & then
+                mvc.perform(get("/winningReport/get/date?startDate=" + inValidStartDate + "&endDate=" + inValidEndDate))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(status().isBadRequest());
+
+            }
+
         }
 
         @Nested
@@ -203,6 +234,20 @@ public class WinningReportControllerUnitTest {
 
             }
 
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() throws Exception {
+                // given
+                Long inValidTotalWinningAmount = -1000L;
+
+                // when & then
+                mvc.perform(get("/winningReport/get/totalWinningAmount/" + inValidTotalWinningAmount))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(status().isBadRequest());
+
+            }
+
         }
     }
 
@@ -230,7 +275,9 @@ public class WinningReportControllerUnitTest {
                     .winningAmount(1714662540L)
                     .build();
 
-            List<RankDTO> rankDTOList = new ArrayList<>(Arrays.asList(rankDTO));
+            List<RankDTO> rankDTOList = Stream.generate(() -> rankDTO)
+                    .limit(5)
+                    .collect(Collectors.toList());
 
             winningReportDTO = WinningReportDTO.builder()
                     .round(round)
@@ -285,8 +332,164 @@ public class WinningReportControllerUnitTest {
 
             }
 
-        }
+            @Nested
+            @DisplayName("Validation(WinningReport) 테스트")
+            class Test_Insert_Valid_WinningReport {
 
+                @Test
+                @DisplayName("실패(Validation_Round 예외)")
+                void fail_valid_round() throws Exception {
+                    // given
+                    Integer inValidRound = -1;
+                    winningReportDTO.setRound(inValidRound);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                    // when & then
+                    mvc.perform(post("/winningReport/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Date 예외)")
+                void fail_valid_date() throws Exception {
+                    // given
+                    LocalDate inValidDate = LocalDate.parse("3000-03-01");
+                    winningReportDTO.setDate(inValidDate);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                    // when & then
+                    mvc.perform(post("/winningReport/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_TotalWinningAmount 예외)")
+                void fail_valid_totalWinningAmount() throws Exception {
+                    // given
+                    Long inValidTotalWinningAmount = -1000L;
+                    winningReportDTO.setTotalWinningAmount(inValidTotalWinningAmount);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                    // when & then
+                    mvc.perform(post("/winningReport/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_RankList 예외)")
+                void fail_valid_rankList() throws Exception {
+                    // given
+                    List<RankDTO> inValidRankList = new ArrayList<>(Arrays.asList(rankDTO));
+                    winningReportDTO.setRankDTOList(inValidRankList);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                    // when & then
+                    mvc.perform(post("/winningReport/post/insert")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Nested
+                @DisplayName("Validation(Rank) 테스트")
+                class Test_Insert_Valid_Rank {
+
+                    @Test
+                    @DisplayName("실패(Validation_Ranking 예외)")
+                    void fail_valid_ranking() throws Exception {
+                        // given
+                        Integer inValidRanking = -1;
+                        winningReportDTO.getRankDTOList().get(0).setRanking(inValidRanking);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                        // when & then
+                        mvc.perform(post("/winningReport/post/insert")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+                    }
+
+                    @Test
+                    @DisplayName("실패(Validation_WinningCount 예외)")
+                    void fail_valid_winningCount() throws Exception {
+                        // given
+                        Integer inValidWinningCount = -1;
+                        winningReportDTO.getRankDTOList().get(0).setWinningCount(inValidWinningCount);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                        // when & then
+                        mvc.perform(post("/winningReport/post/insert")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+
+                    }
+
+                    @Test
+                    @DisplayName("실패(Validation_TotalWinningAmount 예외)")
+                    void fail_valid_totalWinningAmount() throws Exception {
+                        // given
+                        Long inValidTotalWinningAmount = -1L;
+                        winningReportDTO.getRankDTOList().get(0).setTotalWinningAmount(inValidTotalWinningAmount);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                        // when & then
+                        mvc.perform(post("/winningReport/post/insert")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+                    }
+
+                    @Test
+                    @DisplayName("실패(Validation_WinningAmount 예외)")
+                    void fail_valid_winningAmount() throws Exception {
+                        // given
+                        Long inValidWinningAmount = -1L;
+                        winningReportDTO.getRankDTOList().get(0).setWinningAmount(inValidWinningAmount);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
+
+                        // when & then
+                        mvc.perform(post("/winningReport/post/insert")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+                    }
+                }
+            }
+        }
     }
 
     @Nested
@@ -313,7 +516,9 @@ public class WinningReportControllerUnitTest {
                     .winningAmount(1714662540L)
                     .build();
 
-            List<RankDTO> rankDTOList = new ArrayList<>(Arrays.asList(rankDTO));
+            List<RankDTO> rankDTOList = Stream.generate(() -> rankDTO)
+                    .limit(5)
+                    .collect(Collectors.toList());
 
             updateWinningReportDTO = WinningReportDTO.builder()
                     .round(round)
@@ -370,6 +575,182 @@ public class WinningReportControllerUnitTest {
 
             }
 
+            @Nested
+            @DisplayName("Validation(WinningReport) 테스트")
+            class Test_Update_Valid_WinningReport {
+
+                @Test
+                @DisplayName("실패(Validation_Round 예외)")
+                void fail_valid_updateRound() throws Exception {
+                    // given
+                    Integer inValidUpdateRound = -1;
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                    // when & then
+                    mvc.perform(put("/winningReport/put/update/" + inValidUpdateRound)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Round 예외)")
+                void fail_valid_round() throws Exception {
+                    // given
+                    Integer validRound = 1111;
+                    Integer inValidRound = -1;
+                    updateWinningReportDTO.setRound(inValidRound);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                    // when & then
+                    mvc.perform(put("/winningReport/put/update/" + validRound)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Date 예외)")
+                void fail_valid_date() throws Exception {
+                    // given
+                    LocalDate inValidDate = LocalDate.parse("3000-03-01");
+                    updateWinningReportDTO.setDate(inValidDate);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                    // when & then
+                    mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_TotalWinningAmount 예외)")
+                void fail_valid_totalWinningAmount() throws Exception {
+                    // given
+                    Long inValidTotalWinningAmount = -1000L;
+                    updateWinningReportDTO.setTotalWinningAmount(inValidTotalWinningAmount);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                    // when & then
+                    mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+
+                }
+
+                @Test
+                @DisplayName("실패(Validation_RankList 예외)")
+                void fail_valid_rankList() throws Exception {
+                    // given
+                    List<RankDTO> inValidRankList = new ArrayList<>(Arrays.asList(rankDTO));
+                    updateWinningReportDTO.setRankDTOList(inValidRankList);
+
+                    String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                    // when & then
+                    mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(winningReportDTOJson))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Nested
+                @DisplayName("Validation(Rank) 테스트")
+                class Test_Update_Valid_Rank {
+
+                    @Test
+                    @DisplayName("실패(Validation_Ranking 예외)")
+                    void fail_valid_ranking() throws Exception {
+                        // given
+                        Integer inValidRanking = -1;
+                        updateWinningReportDTO.getRankDTOList().get(0).setRanking(inValidRanking);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                        // when & then
+                        mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+                    }
+
+                    @Test
+                    @DisplayName("실패(Validation_WinningCount 예외)")
+                    void fail_valid_winningCount() throws Exception {
+                        // given
+                        Integer inValidWinningCount = -1;
+                        updateWinningReportDTO.getRankDTOList().get(0).setWinningCount(inValidWinningCount);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                        // when & then
+                        mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+
+                    }
+
+                    @Test
+                    @DisplayName("실패(Validation_TotalWinningAmount 예외)")
+                    void fail_valid_totalWinningAmount() throws Exception {
+                        // given
+                        Long inValidTotalWinningAmount = -1L;
+                        updateWinningReportDTO.getRankDTOList().get(0).setTotalWinningAmount(inValidTotalWinningAmount);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                        // when & then
+                        mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+                    }
+
+                    @Test
+                    @DisplayName("실패(Validation_WinningAmount 예외)")
+                    void fail_valid_winningAmount() throws Exception {
+                        // given
+                        Long inValidWinningAmount = -1L;
+                        updateWinningReportDTO.getRankDTOList().get(0).setWinningAmount(inValidWinningAmount);
+
+                        String winningReportDTOJson = objectMapper.writeValueAsString(updateWinningReportDTO);
+
+                        // when & then
+                        mvc.perform(put("/winningReport/put/update/" + updateWinningReportDTO.getRound())
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(winningReportDTOJson))
+                                .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                                .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                                .andExpect(status().isBadRequest());
+                    }
+                }
+            }
         }
     }
 
@@ -408,6 +789,19 @@ public class WinningReportControllerUnitTest {
 
             then(winningReportService).should(times(1)).delete(round);
 
+        }
+
+        @Test
+        @DisplayName("실패(Validation 예외)")
+        void fail_valid() throws Exception {
+            // given
+            Integer inValidRound = -1;
+
+            // when & then
+            mvc.perform(delete("/winningReport/delete/" + inValidRound))
+                    .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
+                    .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                    .andExpect(status().isBadRequest());
         }
 
     }
