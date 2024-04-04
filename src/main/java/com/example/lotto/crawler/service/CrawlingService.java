@@ -94,7 +94,7 @@ public class CrawlingService {
 
     }
 
-    public Result settingResult(CrawlingModel crawlingModel) {
+    public Result bindingResult(CrawlingModel crawlingModel) {
         // result 생성
         return Result.builder()
                 .round(crawlingModel.getRound())
@@ -104,7 +104,7 @@ public class CrawlingService {
                 .build();
     }
 
-    public WinningReport settingWinningReport(CrawlingModel crawlingModel) {
+    public WinningReport bindingWinningReport(CrawlingModel crawlingModel) {
         // RankList 생성
         List<Rank> rankList = new ArrayList<>();
         for (int i = 0; i < crawlingModel.getRankings().size(); i++) {
@@ -129,8 +129,8 @@ public class CrawlingService {
 
     @Transactional
     public void insertByCrawl(CrawlingModel crawlingModel) {
-        resultRepository.save(settingResult(crawlingModel));
-        winningReportRepository.save(settingWinningReport(crawlingModel));
+        resultRepository.save(bindingResult(crawlingModel));
+        winningReportRepository.save(bindingWinningReport(crawlingModel));
     }
 
     @Transactional
@@ -140,9 +140,8 @@ public class CrawlingService {
         List<WinningReport> winningReportList = new ArrayList<>();
 
         crawlingModelList.forEach((crawlingModel) -> {
-            // 리스트화
-            resultList.add(settingResult(crawlingModel));
-            winningReportList.add(settingWinningReport(crawlingModel));
+            resultList.add(bindingResult(crawlingModel));
+            winningReportList.add(bindingWinningReport(crawlingModel));
         });
 
         resultRepository.saveAll(resultList);
