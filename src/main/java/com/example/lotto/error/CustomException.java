@@ -20,7 +20,7 @@ public class CustomException extends RuntimeException {
             this.errorCode = customException.getErrorCode();
         } else {
             this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-            this.errorCode = ErrorCode.UNKNOWN_TOKEN;
+            this.errorCode = ErrorCode.UNKNOWN;
         }
     }
 }

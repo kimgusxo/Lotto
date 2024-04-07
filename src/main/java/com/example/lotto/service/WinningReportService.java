@@ -54,7 +54,7 @@ public class WinningReportService {
         List<WinningReport> winningReportList = winningReportRepository.findByTotalWinningAmountGreaterThanEqual(totalWinningAmount);
 
         if(winningReportList.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
         }
 
         List<WinningReportDTO> winningReportDTOList = new ArrayList<>();
@@ -83,7 +83,7 @@ public class WinningReportService {
         WinningReport winningReport = winningReportRepository.findByRound(updateRound);
 
         if(Objects.isNull(winningReport)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
         }
 
         winningReport.setDate(winningReportDTO.getDate());
@@ -100,7 +100,7 @@ public class WinningReportService {
         Integer token = winningReportRepository.deleteByRound(round);
 
         if(token.equals(0)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
         }
 
     }

@@ -90,7 +90,7 @@ public class ResultControllerUnitTest {
             void fail() throws Exception {
                 // given
                 Integer round = 10000;
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_ROUND_TOKEN;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_ROUND;
                 given(resultService.readByRound(round)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
                 // when & then
@@ -109,8 +109,8 @@ public class ResultControllerUnitTest {
 
                 // when & then
                 mvc.perform(get("/result/get/round/" + invalidRound))
-                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                         .andExpect(status().isBadRequest());
             }
 
@@ -143,7 +143,7 @@ public class ResultControllerUnitTest {
             void fail() throws Exception {
                 // given
                 Integer bonusNumber = 1;
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_BONUS_NUMBER_TOKEN;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER;
 
                 given(resultService.readByBonusNumber(bonusNumber)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
@@ -163,8 +163,8 @@ public class ResultControllerUnitTest {
 
                 // when & then
                 mvc.perform(get("/result/get/bonusNumber/" + inValidBonusNumber))
-                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                         .andExpect(status().isBadRequest());
             }
 
@@ -197,7 +197,7 @@ public class ResultControllerUnitTest {
             void fail() throws Exception {
                 // given
                 Integer number = 1;
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_NUMBER_TOKEN;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_NUMBER;
 
                 given(resultService.readByNumber(number)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
@@ -217,8 +217,8 @@ public class ResultControllerUnitTest {
 
                 // when & then
                 mvc.perform(get("/result/get/number/" + inValidNumber))
-                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                         .andExpect(status().isBadRequest());
             }
         }
@@ -252,7 +252,7 @@ public class ResultControllerUnitTest {
                 // given
                 LocalDate startDate = LocalDate.parse("1000-03-01");
                 LocalDate endDate = LocalDate.parse("1000-03-31");
-                ErrorCode errorCode = ErrorCode.INCORRECT_DATE_TOKEN;
+                ErrorCode errorCode = ErrorCode.INCORRECT_RESULT_DATE;
 
                 given(resultService.readByDate(startDate, endDate)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
@@ -273,8 +273,8 @@ public class ResultControllerUnitTest {
 
                 // when & then
                 mvc.perform(get("/result/get/date?startDate=" + inValidStartDate + "&endDate=" + inValidEndDate))
-                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                        .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                        .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                         .andExpect(status().isBadRequest());
             }
 
@@ -334,7 +334,7 @@ public class ResultControllerUnitTest {
             @DisplayName("실패(Controller 예외)")
             void fail() throws Exception {
                 // given
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
                 given(resultService.insert(resultDTO)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
                 String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
@@ -365,8 +365,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(post("/result/post/insert")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(resultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
                 }
 
@@ -383,8 +383,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(post("/result/post/insert")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(resultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -402,8 +402,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(post("/result/post/insert")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(resultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -421,8 +421,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(post("/result/post/insert")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(resultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -440,8 +440,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(post("/result/post/insert")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(resultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -503,7 +503,7 @@ public class ResultControllerUnitTest {
             @DisplayName("실패(Controller 예외)")
             void fail() throws Exception {
                 // given
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
                 given(resultService.update(updateResultDTO.getRound(), updateResultDTO)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
                 String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
@@ -533,8 +533,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(put("/result/put/update/" + inValidUpdateRound)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -553,8 +553,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(put("/result/put/update/" + validRound)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
                 }
 
@@ -571,8 +571,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -590,8 +590,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -609,8 +609,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -628,8 +628,8 @@ public class ResultControllerUnitTest {
                     mvc.perform(put("/result/put/update/" + updateResultDTO.getRound())
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(updateResultDTOJson))
-                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                            .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                            .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                             .andExpect(status().isBadRequest());
 
                 }
@@ -661,7 +661,7 @@ public class ResultControllerUnitTest {
         void fail() throws Exception {
             // given
             Integer round = 1;
-            ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_TOKEN;
+            ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
 
             willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode)).given(resultService).delete(round);
 
@@ -682,8 +682,8 @@ public class ResultControllerUnitTest {
 
             // when & then
             mvc.perform(delete("/result/delete/" + inValidRound))
-                    .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION_TOKEN.getCode()))
-                    .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION_TOKEN.getDetail()))
+                    .andExpect(jsonPath("$.code").value(ErrorCode.VALIDATION.getCode()))
+                    .andExpect(jsonPath("$.detail").value(ErrorCode.VALIDATION.getDetail()))
                     .andExpect(status().isBadRequest());
         }
     }

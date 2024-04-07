@@ -99,6 +99,7 @@ public class CrawlingServiceUnitTest {
         @Nested
         @DisplayName("BindingResult 테스트")
         class Test_BindingResult {
+
             @Test
             @DisplayName("성공")
             void success() {

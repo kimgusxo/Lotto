@@ -96,7 +96,7 @@ public class ResultServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> resultService.readByRound(round))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_ROUND_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_ROUND);
 
                 then(resultRepository).should(times(1)).existsByRound(round);
                 then(resultRepository).should(times(0)).findByRound(round);
@@ -138,7 +138,7 @@ public class ResultServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> resultService.readByBonusNumber(bonusNumber))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_BONUS_NUMBER_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER);
 
                 then(resultRepository).should(times(1)).findByBonusNumber(bonusNumber);
             }
@@ -179,7 +179,7 @@ public class ResultServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> resultService.readByNumber(number))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_NUMBER_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_NUMBER);
 
                 then(resultRepository).should(times(1)).findByNumbersContaining(number);
             }
@@ -225,7 +225,7 @@ public class ResultServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> resultService.readByDate(startDate, endDate))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INCORRECT_DATE_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INCORRECT_RESULT_DATE);
 
                 then(resultRepository).should(times(1)).findByDateBetween(startDate, endDate);
             }
@@ -303,7 +303,7 @@ public class ResultServiceUnitTest {
             // when & then
             assertThatThrownBy(() -> resultService.insert(resultDTO))
                     .isInstanceOf(CustomException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_ROUND_TOKEN);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_RESULT_ROUND);
 
             then(resultRepository).should(times(1)).existsByRound(resultDTO.getRound());
             then(resultRepository).should(times(0)).insert(result);
@@ -395,7 +395,7 @@ public class ResultServiceUnitTest {
             // when & then
             assertThatThrownBy(() -> resultService.update(result.getRound(), resultDTO))
                     .isInstanceOf(CustomException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_TOKEN);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT);
 
             then(resultRepository).should(times(1)).findByRound(result.getRound());
             then(resultRepository).should(times(0)).save(result);
@@ -433,7 +433,7 @@ public class ResultServiceUnitTest {
             // when & then
             assertThatThrownBy(() -> resultService.delete(round))
                     .isInstanceOf(CustomException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT_TOKEN);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_RESULT);
 
             then(resultRepository).should(times(1)).deleteByRound(round);
         }

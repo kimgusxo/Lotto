@@ -4,6 +4,8 @@ import com.example.lotto.crawler.model.CrawlingModel;
 import com.example.lotto.domain.Rank;
 import com.example.lotto.domain.Result;
 import com.example.lotto.domain.WinningReport;
+import com.example.lotto.error.CustomException;
+import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.ResultRepository;
 import com.example.lotto.repository.WinningReportRepository;
 import org.jsoup.Jsoup;
@@ -11,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CrawlingService {
@@ -34,7 +38,7 @@ public class CrawlingService {
     }
 
     public CrawlingModel crawlWebsite(String url) throws IOException {
-        CrawlingModel crawlingModel = new CrawlingModel();
+            CrawlingModel crawlingModel = new CrawlingModel();
 
         Document doc = Jsoup.connect(url).get();
 
@@ -90,18 +94,56 @@ public class CrawlingService {
         crawlingModel.setTotalWinningAmounts(totalWinningAmounts);
         crawlingModel.setWinningAmounts(winningAmounts);
 
+        validateCrawlingModel(crawlingModel);
+
         return crawlingModel;
 
     }
 
+    public void validateCrawlingModel(CrawlingModel crawlingModel) {
+        if(crawlingModel.getRound() == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getDate() == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getNumbers() == null || crawlingModel.getNumbers().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getBonusNumber() == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getTotalWinningAmount() == null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getRankings() == null || crawlingModel.getRankings().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getWinningCounts() == null || crawlingModel.getWinningCounts().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getTotalWinningAmounts() == null || crawlingModel.getTotalWinningAmounts().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+        if(crawlingModel.getWinningAmounts() == null || crawlingModel.getWinningAmounts().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_CRAWLING_MODEL);
+        }
+    }
+
     public Result bindingResult(CrawlingModel crawlingModel) {
         // result 생성
-        return Result.builder()
+        Result result = Result.builder()
                 .round(crawlingModel.getRound())
                 .numbers(crawlingModel.getNumbers())
                 .bonusNumber(crawlingModel.getBonusNumber())
                 .date(crawlingModel.getDate())
                 .build();
+
+        if(Objects.isNull(result)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT);
+        }
+
+        return result;
     }
 
     public WinningReport bindingWinningReport(CrawlingModel crawlingModel) {
@@ -123,6 +165,10 @@ public class CrawlingService {
                 .totalWinningAmount(crawlingModel.getTotalWinningAmount())
                 .rankList(rankList)
                 .build();
+
+        if(Objects.isNull(winningReport)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
+        }
 
         return winningReport;
     }

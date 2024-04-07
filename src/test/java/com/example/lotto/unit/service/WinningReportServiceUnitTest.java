@@ -101,7 +101,7 @@ public class WinningReportServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> winningReportService.readByRound(round))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_ROUND_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT_ROUND);
 
                 then(winningReportRepository).should(times(1)).existsByRound(round);
                 then(winningReportRepository).should(times(0)).findByRound(round);
@@ -148,7 +148,7 @@ public class WinningReportServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> winningReportService.readByDate(startDate, endDate))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INCORRECT_DATE_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INCORRECT_WINNING_REPORT_DATE);
 
                 then(winningReportRepository).should(times(1)).findByDateBetween(startDate, endDate);
             }
@@ -192,7 +192,7 @@ public class WinningReportServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> winningReportService.readByTotalWinningAmount(totalWinningAmount))
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT_TOKEN);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT);
 
                 then(winningReportRepository).should(times(1)).findByTotalWinningAmountGreaterThanEqual(totalWinningAmount);
             }
@@ -279,7 +279,7 @@ public class WinningReportServiceUnitTest {
             // when & then
             assertThatThrownBy(() -> winningReportService.insert(winningReportDTO))
                     .isInstanceOf(CustomException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_ROUND_TOKEN);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_WINNING_REPORT_ROUND);
 
             then(winningReportRepository).should(times(1)).existsByRound(winningReport.getRound());
             then(winningReportRepository).should(times(0)).insert(winningReport);
@@ -373,7 +373,7 @@ public class WinningReportServiceUnitTest {
             // when
             assertThatThrownBy(() -> winningReportService.update(updateRound, winningReportDTO))
                     .isInstanceOf(CustomException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT_TOKEN);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT);
 
             // then
             then(winningReportRepository).should(times(1)).findByRound(winningReport.getRound());
@@ -414,7 +414,7 @@ public class WinningReportServiceUnitTest {
             // when & then
             assertThatThrownBy(() -> winningReportService.delete(round))
                     .isInstanceOf(CustomException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT_TOKEN);
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_WINNING_REPORT);
         }
 
     }
