@@ -2,8 +2,15 @@ package com.example.lotto.unit.crawler.service;
 
 import com.example.lotto.crawler.model.CrawlingModel;
 import com.example.lotto.crawler.service.CrawlingService;
+import com.example.lotto.crawler.utils.CrawlingUtils;
+import com.example.lotto.domain.Rank;
+import com.example.lotto.domain.Result;
+import com.example.lotto.domain.WinningReport;
+import com.example.lotto.error.CustomException;
 import com.example.lotto.repository.ResultRepository;
 import com.example.lotto.repository.WinningReportRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,6 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.*;
+
 @ExtendWith(MockitoExtension.class)
 public class CrawlingServiceUnitTest {
 
@@ -27,6 +38,9 @@ public class CrawlingServiceUnitTest {
 
     @Mock
     private WinningReportRepository winningReportRepository;
+
+    @Mock
+    private CrawlingUtils crawlingUtils;
 
     @InjectMocks
     private CrawlingService crawlingService;
@@ -70,22 +84,61 @@ public class CrawlingServiceUnitTest {
 
             @Test
             @DisplayName("성공")
-            void success() throws IOException {
+            void success() throws Exception {
                 // given
+                Integer round = 1111;
+                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + round;
+                String html = "<html>" +
+                        "<head>" +
+                        "    <title>로또 당첨 결과</title>" +
+                        "</head>" +
+                        "<body>" +
+                        "    <div class=\"win_result\">" +
+                        "        <h4><strong>1111회</strong></h4>" +
+                        "        <p class=\"desc\">(2024년 03월 16일 추첨)</p>" +
+                        "    </div>" +
+                        "    <div class=\"num win\">" +
+                        "        <p><span>1</span> <span>2</span> <span>3</span> <span>4</span> <span>5</span> <span>6</span></p>" +
+                        "    </div>" +
+                        "    <div class=\"num bonus\">" +
+                        "        <p><span>4</span></p>" +
+                        "    </div>" +
+                        "    <ul class=\"list_text_common\">" +
+                        "        <li><strong>1111</strong></li>" +
+                        "    </ul>" +
+                        "    <table>" +
+                        "    <tbody>" +
+                        "        <tr><td>1등</td><td>1,111</td><td>1</td><td>1</td></tr>" +
+                        "        <tr><td>2등</td><td>2,222</td><td>2</td><td>2</td></tr>" +
+                        "        <tr><td>3등</td><td>3,333</td><td>3</td><td>3</td></tr>" +
+                        "        <tr><td>4등</td><td>4,444</td><td>4</td><td>4</td></tr>" +
+                        "        <tr><td>5등</td><td>5,555</td><td>5</td><td>5</td></tr>" +
+                        "    </tbody>" +
+                        "    </table>" +
+                        "</body>" +
+                        "</html>";
+
+                given(crawlingUtils.getDocument(url)).willReturn(Jsoup.parse(html));
 
                 // when
+                crawlingModel = crawlingService.crawlWebsite(url);
 
                 // then
+                assertThat(crawlingModel.getRound())
+                        .isEqualTo(round);
             }
 
             @Test
             @DisplayName("실패")
-            void fail() throws IOException {
-                // given
+            void fail() throws Exception {
+                Integer round = 1111;
+                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + round;
 
-                // when
+                given(crawlingUtils.getDocument(url)).willThrow(IOException.class);
 
-                // then
+                // when & then
+                assertThatThrownBy(() -> crawlingService.crawlWebsite(url))
+                        .isInstanceOf(IOException.class);
             }
 
         }
@@ -104,20 +157,26 @@ public class CrawlingServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
+                Integer round = crawlingModel.getRound();
 
                 // when
+                Result result = crawlingService.bindingResult(crawlingModel);
 
                 // then
+                assertThat(result.getRound())
+                        .isEqualTo(round);
+
             }
 
             @Test
             @DisplayName("실패")
             void fail() {
-                // given
+                // Given
+                CrawlingModel model = new CrawlingModel();
 
-                // when
-
-                // then
+                // When & Then
+                assertThatThrownBy(() -> crawlingService.bindingResult(model))
+                        .isInstanceOf(CustomException.class);
             }
         }
 
@@ -128,20 +187,25 @@ public class CrawlingServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
+                Integer round = crawlingModel.getRound();
 
                 // when
+                WinningReport winningReport = crawlingService.bindingWinningReport(crawlingModel);
 
                 // then
+                assertThat(winningReport.getRound())
+                        .isEqualTo(round);
             }
 
             @Test
             @DisplayName("실패")
             void fail() {
                 // given
+                crawlingModel.setDate(null);
 
-                // when
-
-                // then
+                // when & then
+                assertThatThrownBy(() -> crawlingService.bindingWinningReport(crawlingModel))
+                        .isInstanceOf(CustomException.class);
             }
         }
 
@@ -151,6 +215,36 @@ public class CrawlingServiceUnitTest {
     @DisplayName("Insert 테스트")
     class Test_Insert {
 
+        private Result result;
+        private WinningReport winningReport;
+
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            result = Result.builder()
+                    .round(crawlingModel.getRound())
+                    .numbers(crawlingModel.getNumbers())
+                    .bonusNumber(crawlingModel.getBonusNumber())
+                    .date(crawlingModel.getDate())
+                    .build();
+
+            Rank rank = Rank.builder()
+                    .ranking(crawlingModel.getRankings().get(0))
+                    .winningCount(crawlingModel.getWinningCounts().get(0))
+                    .totalWinningAmount(crawlingModel.getTotalWinningAmounts().get(0))
+                    .winningAmount(crawlingModel.getWinningAmounts().get(0))
+                    .build();
+
+            List<Rank> rankList = new ArrayList<>(Arrays.asList(rank));
+
+            winningReport = WinningReport.builder()
+                    .round(crawlingModel.getRound())
+                    .date(crawlingModel.getDate())
+                    .totalWinningAmount(crawlingModel.getTotalWinningAmount())
+                    .rankList(rankList)
+                    .build();
+        }
+
         @Nested
         @DisplayName("InsertByCrawl")
         class Test_InsertByCrawl {
@@ -158,20 +252,43 @@ public class CrawlingServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
+                given(resultRepository.save(any())).willReturn(result);
+                given(winningReportRepository.save(any())).willReturn(winningReport);
 
                 // when
+                crawlingService.insertByCrawl(crawlingModel);
 
                 // then
+                then(resultRepository).should(times(1)).save(any());
+                then(winningReportRepository).should(times(1)).save(any());
             }
 
             @Test
-            @DisplayName("실패")
-            void fail() {
+            @DisplayName("실패(Result)")
+            void fail_result() {
                 // given
+                given(resultRepository.save(any())).willThrow(IllegalArgumentException.class);
 
-                // when
+                // when & then
+                assertThatThrownBy(() -> crawlingService.insertByCrawl(crawlingModel))
+                        .isInstanceOf(IllegalArgumentException.class);
 
-                // then
+                then(resultRepository).should(times(1)).save(result);
+                then(winningReportRepository).should(times(0)).save(winningReport);
+            }
+
+            @Test
+            @DisplayName("실패(WinningReport)")
+            void fail_winningReport() {
+                // given
+                given(resultRepository.save(any())).willReturn(result);
+                given(winningReportRepository.save(any())).willThrow(IllegalArgumentException.class);
+
+                // when & then
+                assertThatThrownBy(() -> crawlingService.insertByCrawl(crawlingModel))
+                        .isInstanceOf(IllegalArgumentException.class);
+                then(resultRepository).should(times(1)).save(any());
+                then(winningReportRepository).should(times(1)).save(any());
             }
         }
 
@@ -182,20 +299,52 @@ public class CrawlingServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
+                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
+                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+                List<WinningReport> winningReportList = new ArrayList<>(Arrays.asList(winningReport));
+
+                given(resultRepository.saveAll(anyList())).willReturn(resultList);
+                given(winningReportRepository.saveAll(anyList())).willReturn(winningReportList);
 
                 // when
+                crawlingService.insertAllByCrawl(crawlingModelList);
 
                 // then
+                then(resultRepository).should(times(1)).saveAll(anyList());
+                then(winningReportRepository).should(times(1)).saveAll(anyList());
             }
 
             @Test
-            @DisplayName("실패")
-            void fail() {
+            @DisplayName("실패(ResultList)")
+            void fail_resultList() {
                 // given
+                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
 
-                // when
+                given(resultRepository.saveAll(anyList())).willThrow(IllegalArgumentException.class);
 
-                // then
+                // when & then
+                assertThatThrownBy(() -> crawlingService.insertAllByCrawl(crawlingModelList))
+                        .isInstanceOf(IllegalArgumentException.class);
+
+                then(resultRepository).should(times(1)).saveAll(anyList());
+            }
+
+            @Test
+            @DisplayName("실패(ResultList)")
+            void fail_winningReportList() {
+                // given
+                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
+                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+
+                given(resultRepository.saveAll(anyList())).willReturn(resultList);
+                given(winningReportRepository.saveAll(anyList())).willThrow(IllegalArgumentException.class);
+
+                // when & then
+                assertThatThrownBy(() -> crawlingService.insertAllByCrawl(crawlingModelList))
+                        .isInstanceOf(IllegalArgumentException.class);
+
+                then(resultRepository).should(times(1)).saveAll(anyList());
+                then(winningReportRepository).should(times(1)).saveAll(anyList());
             }
         }
     }

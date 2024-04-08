@@ -24,19 +24,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorDTO> handleConstraintViolationException(ConstraintViolationException ex) {
-        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
+        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION);
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
+        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION);
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ErrorDTO> handleMethodArgumentNotValidException(HandlerMethodValidationException ex) {
-        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION_TOKEN);
+        ErrorDTO errorDTO = ErrorDTO.of(ErrorCode.VALIDATION);
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 

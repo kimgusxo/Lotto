@@ -26,7 +26,7 @@ public class ResultService {
         boolean exist = resultRepository.existsByRound(round);
 
         if(exist) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_ROUND_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_ROUND);
         }
 
         return resultRepository.findByRound(round).toDTO();
@@ -37,7 +37,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByBonusNumber(bonusNumber);
 
         if(resultList.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_BONUS_NUMBER_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();
@@ -52,7 +52,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByNumbersContaining(number);
 
         if(resultList.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_NUMBER_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_NUMBER);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();
@@ -68,7 +68,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByDateBetween(startDate, endDate);
 
         if(resultList.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_DATE_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_WINNING_REPORT_DATE);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();
@@ -84,7 +84,7 @@ public class ResultService {
         boolean exist = resultRepository.existsByRound(resultDTO.getRound());
 
         if(exist) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_ROUND_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_RESULT_ROUND);
         }
 
         ResultDTO saveResultDTO = resultRepository.insert(resultDTO.toEntity()).toDTO();
@@ -97,7 +97,7 @@ public class ResultService {
         Result result = resultRepository.findByRound(updateRound);
 
         if(Objects.isNull(result)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT);
         }
 
         result.setBonusNumber(resultDTO.getBonusNumber());
@@ -114,7 +114,7 @@ public class ResultService {
         Integer token = resultRepository.deleteByRound(round);
 
         if(token.equals(0)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT);
         }
 
     }

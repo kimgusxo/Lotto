@@ -27,7 +27,7 @@ public class WinningReportService {
         boolean exist = winningReportRepository.existsByRound(round);
 
         if(!exist) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_ROUND_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT_ROUND);
         }
 
         WinningReportDTO winningReportDTO = winningReportRepository.findByRound(round).toDTO();
@@ -39,7 +39,7 @@ public class WinningReportService {
         List<WinningReport> winningReportList = winningReportRepository.findByDateBetween(startDate, endDate);
 
         if(winningReportList.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_DATE_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_WINNING_REPORT_DATE);
         }
 
         List<WinningReportDTO> winningReportDTOList = new ArrayList<>();
@@ -70,7 +70,7 @@ public class WinningReportService {
         boolean exist = winningReportRepository.existsByRound(winningReportDTO.getRound());
 
         if(exist) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_ROUND_TOKEN);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.DUPLICATE_WINNING_REPORT_ROUND);
         }
 
         WinningReportDTO updateWinningReportDTO = winningReportRepository.insert(winningReportDTO.toEntity()).toDTO();

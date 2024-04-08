@@ -1,6 +1,7 @@
 package com.example.lotto.crawler.service;
 
 import com.example.lotto.crawler.model.CrawlingModel;
+import com.example.lotto.crawler.utils.CrawlingUtils;
 import com.example.lotto.domain.Rank;
 import com.example.lotto.domain.Result;
 import com.example.lotto.domain.WinningReport;
@@ -8,7 +9,6 @@ import com.example.lotto.error.CustomException;
 import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.ResultRepository;
 import com.example.lotto.repository.WinningReportRepository;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -29,18 +29,21 @@ public class CrawlingService {
 
     private final ResultRepository resultRepository;
     private final WinningReportRepository winningReportRepository;
+    private final CrawlingUtils crawlingUtils;
 
     @Autowired
     public CrawlingService(ResultRepository resultRepository,
-                           WinningReportRepository winningReportRepository) {
+                           WinningReportRepository winningReportRepository,
+                           CrawlingUtils crawlingUtils) {
         this.resultRepository = resultRepository;
         this.winningReportRepository = winningReportRepository;
+        this.crawlingUtils = crawlingUtils;
     }
 
     public CrawlingModel crawlWebsite(String url) throws IOException {
-            CrawlingModel crawlingModel = new CrawlingModel();
+        CrawlingModel crawlingModel = new CrawlingModel();
 
-        Document doc = Jsoup.connect(url).get();
+        Document doc = crawlingUtils.getDocument(url);
 
         // 회차
         String roundStr = doc.select("div.win_result > h4 > strong").first().text();
@@ -139,7 +142,7 @@ public class CrawlingService {
                 .date(crawlingModel.getDate())
                 .build();
 
-        if(Objects.isNull(result)) {
+        if (result.getRound() == null || result.getNumbers() == null || result.getNumbers().isEmpty() || result.getDate() == null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT);
         }
 
@@ -166,7 +169,7 @@ public class CrawlingService {
                 .rankList(rankList)
                 .build();
 
-        if(Objects.isNull(winningReport)) {
+        if (winningReport.getRound() == null || winningReport.getDate() == null || winningReport.getRankList() == null || winningReport.getRankList().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
         }
 
