@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,14 +81,13 @@ public class CrawlingControllerUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                Integer round = 1111;
-                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + round;
-                given(crawlingService.crawlWebsite(url)).willReturn(crawlingModel);
+                Integer page = 1111;
+                given(crawlingService.crawlWebsite(page)).willReturn(crawlingModel);
 
                 // when & then
-                mvc.perform(get("/crawling/get/crawlWebsite/" + round)
+                mvc.perform(get("/crawling/get/crawlWebsite/" + page)
                                 .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(jsonPath("$.round").value(round))
+                        .andExpect(jsonPath("$.round").value(page))
                         .andExpect(status().isOk());
             }
 
@@ -95,14 +95,13 @@ public class CrawlingControllerUnitTest {
             @DisplayName("실패")
             void fail() throws Exception {
                 // given
-                Integer round = 9999;
-                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + round;
+                Integer page = 9999;
                 ErrorCode errorCode = ErrorCode.UNKNOWN;
 
-                given(crawlingService.crawlWebsite(url)).willThrow(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, errorCode));
+                given(crawlingService.crawlWebsite(page)).willThrow(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, errorCode));
 
                 // when & then
-                mvc.perform(get("/crawling/get/crawlWebsite/" + round)
+                mvc.perform(get("/crawling/get/crawlWebsite/" + page)
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
@@ -118,17 +117,16 @@ public class CrawlingControllerUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                Integer startRound = 1;
-                Integer endRound = 100;
+                Integer startPage = 1111;
+                Integer endPage = 1112;
 
-                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + startRound;
-                given(crawlingService.crawlWebsite(url)).willReturn(crawlingModel);
+                given(crawlingService.crawlWebsite(startPage)).willReturn(crawlingModel);
 
 
                 // when & then
-                mvc.perform(get("/crawling/get/crawlWebsite")
+                mvc.perform(get("/crawling/get/crawlWebsite/list?startPage=" + startPage + "&endPage=" + endPage)
                                 .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(jsonPath("$[0].round").value(startRound))
+                        .andExpect(jsonPath("$[0].round").value(startPage))
                         .andExpect(status().isOk());
             }
 
@@ -136,16 +134,15 @@ public class CrawlingControllerUnitTest {
             @DisplayName("실패")
             void fail() throws Exception {
                 // given
-                Integer startRound = 1;
-                Integer endRound = 100;
+                Integer startPage = 1;
+                Integer endPage = 100;
 
-                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + startRound;
                 ErrorCode errorCode = ErrorCode.UNKNOWN;
 
-                given(crawlingService.crawlWebsite(url)).willThrow(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, errorCode));
+                given(crawlingService.crawlWebsite(startPage)).willThrow(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, errorCode));
 
                 // when & then
-                mvc.perform(get("/crawling/get/crawlWebsite/" + startRound)
+                mvc.perform(get("/crawling/get/crawlWebsite/list?startPage=" + startPage + "&endPage=" + endPage)
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
@@ -200,6 +197,8 @@ public class CrawlingControllerUnitTest {
                 mvc.perform(post("/crawling/post/insert")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(crawlingModelJson))
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());
 
 
@@ -220,6 +219,8 @@ public class CrawlingControllerUnitTest {
                 mvc.perform(post("/crawling/post/insert")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(crawlingModelJson))
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());
 
 
@@ -258,9 +259,11 @@ public class CrawlingControllerUnitTest {
                 String crawlingModelListJson = objectMapper.writeValueAsString(crawlingModelList);
 
                 // when & then
-                mvc.perform(post("/crawling/post/insert")
+                mvc.perform(post("/crawling/post/insert/list")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(crawlingModelListJson))
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());
 
 
@@ -279,9 +282,11 @@ public class CrawlingControllerUnitTest {
                 String crawlingModelListJson = objectMapper.writeValueAsString(crawlingModelList);
 
                 // when & then
-                mvc.perform(post("/crawling/post/insert")
+                mvc.perform(post("/crawling/post/insert/list")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(crawlingModelListJson))
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());
 
 

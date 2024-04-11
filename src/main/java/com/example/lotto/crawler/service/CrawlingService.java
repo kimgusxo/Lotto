@@ -40,8 +40,9 @@ public class CrawlingService {
         this.crawlingUtils = crawlingUtils;
     }
 
-    public CrawlingModel crawlWebsite(String url) throws IOException {
+    public CrawlingModel crawlWebsite(Integer page) throws IOException {
         CrawlingModel crawlingModel = new CrawlingModel();
+        String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + page;
 
         Document doc = crawlingUtils.getDocument(url);
 

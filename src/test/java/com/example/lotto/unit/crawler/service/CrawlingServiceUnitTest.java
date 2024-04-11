@@ -86,8 +86,8 @@ public class CrawlingServiceUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                Integer round = 1111;
-                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + round;
+                Integer page = 1111;
+                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + page;
                 String html = "<html>" +
                         "<head>" +
                         "    <title>로또 당첨 결과</title>" +
@@ -121,23 +121,23 @@ public class CrawlingServiceUnitTest {
                 given(crawlingUtils.getDocument(url)).willReturn(Jsoup.parse(html));
 
                 // when
-                crawlingModel = crawlingService.crawlWebsite(url);
+                crawlingModel = crawlingService.crawlWebsite(page);
 
                 // then
                 assertThat(crawlingModel.getRound())
-                        .isEqualTo(round);
+                        .isEqualTo(page);
             }
 
             @Test
             @DisplayName("실패")
             void fail() throws Exception {
-                Integer round = 1111;
-                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + round;
+                Integer page = 1111;
+                String url = "https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=" + page;
 
                 given(crawlingUtils.getDocument(url)).willThrow(IOException.class);
 
                 // when & then
-                assertThatThrownBy(() -> crawlingService.crawlWebsite(url))
+                assertThatThrownBy(() -> crawlingService.crawlWebsite(page))
                         .isInstanceOf(IOException.class);
             }
 
