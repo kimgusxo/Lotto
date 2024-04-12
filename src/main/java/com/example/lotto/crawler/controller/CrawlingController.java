@@ -35,6 +35,7 @@ public class CrawlingController {
         List<CrawlingModel> crawlingModelList = new ArrayList<>();
 
         for(int i=startPage; i<=endPage; i++) {
+            System.out.println(i + "번째 크롤링중,,,,,");
             CrawlingModel crawlingModel = crawlingService.crawlWebsite(i);
             crawlingModelList.add(crawlingModel);
         }
@@ -51,6 +52,14 @@ public class CrawlingController {
     @PostMapping("/post/insert/list")
     public ResponseEntity<Void> insertAllByCrawl(@RequestBody List<CrawlingModel> crawlingModelList) {
         crawlingService.insertAllByCrawl(crawlingModelList);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/post/insert/all")
+    public ResponseEntity<Void> insertAll() throws IOException {
+        List<CrawlingModel> crawlingModelList = new ArrayList<>();
+        crawlingModelList = getListByCrawlWebsite(1, 1112).getBody();
+        insertAllByCrawl(crawlingModelList);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

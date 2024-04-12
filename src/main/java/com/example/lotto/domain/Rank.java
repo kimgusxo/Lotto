@@ -19,7 +19,6 @@ public class Rank {
     @Id
     private String id;
 
-    @Indexed(unique = true)
     private Integer ranking;
     private Integer winningCount;
     private Long totalWinningAmount;
