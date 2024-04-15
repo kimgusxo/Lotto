@@ -1,6 +1,7 @@
 package com.example.lotto.service;
 
 import com.example.lotto.domain.StatLotto;
+import com.example.lotto.domain.dto.StatLottoDTO;
 import com.example.lotto.repository.StatLottoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +27,7 @@ public class StatLottoService {
     }
 
     @Transactional
-    public List<StatLotto> calcStatLotto() {
+    public List<StatLottoDTO> calcStatLotto() {
             // 집계 파이프라인 정의
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.unwind("numbers"),  // numbers 필드를 풀어헤침
@@ -41,7 +43,13 @@ public class StatLottoService {
             // 집계 실행
             AggregationResults<StatLotto> results = mongoTemplate.aggregate(aggregation, "result", StatLotto.class);
 
+            List<StatLottoDTO> statLottoDTOList = new ArrayList<>();
+
             // 결과 반환
-            return results.getMappedResults();
+            results.getMappedResults().forEach(s -> {
+                statLottoDTOList.add(s.toDTO());
+            });
+
+            return statLottoDTOList;
     }
 }

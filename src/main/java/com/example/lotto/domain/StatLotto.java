@@ -1,5 +1,6 @@
 package com.example.lotto.domain;
 
+import com.example.lotto.domain.dto.StatLottoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,5 +25,15 @@ public class StatLotto {
     private Double probability;
     private Integer bonusCount;
     private Double bonusProbability;
+
+    public StatLottoDTO toDTO() {
+        return StatLottoDTO.builder()
+                .number(number)
+                .count(count)
+                .probability(probability)
+                .bonusCount(bonusCount)
+                .bonusProbability(bonusProbability)
+                .build();
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.example.lotto.unit.service;
 
 import com.example.lotto.domain.StatLotto;
+import com.example.lotto.domain.dto.StatLottoDTO;
 import com.example.lotto.service.StatLottoService;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -67,7 +67,7 @@ public class StatLottoServiceUnitTest {
 
             given(mongoTemplate.aggregate(any(Aggregation.class), eq("result"), eq(StatLotto.class))).willReturn(results);
             // when
-            List<StatLotto> calcStatLottoList = statLottoService.calcStatLotto();
+            List<StatLottoDTO> calcStatLottoList = statLottoService.calcStatLotto();
 
             // then
             assertThat(calcStatLottoList).isNotNull();
