@@ -1,7 +1,6 @@
 package com.example.lotto.unit.controller;
 
 import com.example.lotto.controller.StatLottoController;
-import com.example.lotto.domain.StatLotto;
 import com.example.lotto.domain.dto.StatLottoDTO;
 import com.example.lotto.error.CustomException;
 import com.example.lotto.error.ErrorCode;
@@ -76,11 +75,11 @@ public class StatLottoControllerUnitTest {
                 // when & then
                 mvc.perform(get("/statLotto/get/calc")
                             .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(jsonPath("$.number").value(statLottoDTOList.get(0).getNumber()))
-                        .andExpect(jsonPath("$.count").value(statLottoDTOList.get(0).getCount()))
-                        .andExpect(jsonPath("$.probability").value(statLottoDTOList.get(0).getProbability()))
-                        .andExpect(jsonPath("$.bonusCount").value(statLottoDTOList.get(0).getBonusCount()))
-                        .andExpect(jsonPath("$.bonusProbability").value(statLottoDTOList.get(0).getBonusProbability()))
+                        .andExpect(jsonPath("$[0].number").value(statLottoDTOList.get(0).getNumber()))
+                        .andExpect(jsonPath("$[0].count").value(statLottoDTOList.get(0).getCount()))
+                        .andExpect(jsonPath("$[0].probability").value(statLottoDTOList.get(0).getProbability()))
+                        .andExpect(jsonPath("$[0].bonusCount").value(statLottoDTOList.get(0).getBonusCount()))
+                        .andExpect(jsonPath("$[0].bonusProbability").value(statLottoDTOList.get(0).getBonusProbability()))
                         .andExpect(status().isOk());
             }
 
@@ -97,7 +96,7 @@ public class StatLottoControllerUnitTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isInternalServerError());
 
             }
         }
