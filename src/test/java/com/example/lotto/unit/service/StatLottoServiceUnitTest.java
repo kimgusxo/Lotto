@@ -2,16 +2,19 @@ package com.example.lotto.unit.service;
 
 import com.example.lotto.domain.StatLotto;
 import com.example.lotto.service.StatLottoService;
+import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 
 import java.util.ArrayList;
@@ -26,11 +29,10 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 public class StatLottoServiceUnitTest {
 
-    @Autowired
-    private StatLottoService statLottoService;
-
-    @MockBean
+    @Mock
     private MongoTemplate mongoTemplate;
+    @InjectMocks
+    private StatLottoService statLottoService;
 
     private StatLotto statLotto;
 
@@ -61,12 +63,11 @@ public class StatLottoServiceUnitTest {
         void success() {
             // given
             List<StatLotto> statLottoList = new ArrayList<>(Arrays.asList(statLotto));
-            AggregationResults<StatLotto> results = new AggregationResults<>(statLottoList, null);
+            AggregationResults<StatLotto> results = new AggregationResults<>(statLottoList, new Document());
 
-            given(mongoTemplate.aggregate(any(), eq("result"), eq(StatLotto.class))).willReturn(results);
-
+            given(mongoTemplate.aggregate(any(Aggregation.class), eq("result"), eq(StatLotto.class))).willReturn(results);
             // when
-            List<StatLotto> calcStatLottoList = statLottoService.calculateStatistics();
+            List<StatLotto> calcStatLottoList = statLottoService.calcStatLotto();
 
             // then
             assertThat(calcStatLottoList).isNotNull();
@@ -82,10 +83,10 @@ public class StatLottoServiceUnitTest {
         @DisplayName("실패")
         void fail() {
             // given
-            given(mongoTemplate.aggregate(any(), eq("result"), eq(StatLotto.class))).willThrow(DataAccessResourceFailureException.class);
+            given(mongoTemplate.aggregate(any(Aggregation.class), eq("result"), eq(StatLotto.class))).willThrow(DataAccessResourceFailureException.class);
 
             // when & then
-            assertThatThrownBy(() -> statLottoService.calculateStatistics())
+            assertThatThrownBy(() -> statLottoService.calcStatLotto())
                     .isInstanceOf(DataAccessResourceFailureException.class);
 
         }
