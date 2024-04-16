@@ -1,6 +1,5 @@
 package com.example.lotto.unit.repository;
 
-import com.example.lotto.domain.Result;
 import com.example.lotto.domain.StatLotto;
 import com.example.lotto.repository.StatLottoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataMongoTest
 public class StatLottoRepositoryUnitTest {
@@ -37,7 +35,7 @@ public class StatLottoRepositoryUnitTest {
             Integer bonusCount = 1;
             Double bonusProbability = 1.1111;
 
-            Optional<Result> existingStatLotto = Optional.ofNullable(statLottoRepository.findByNumber(number));
+            Optional<StatLotto> existingStatLotto = Optional.ofNullable(statLottoRepository.findByNumber(number));
 
             if(existingStatLotto.isEmpty()) {
                 StatLotto statLotto = StatLotto.builder()
@@ -97,7 +95,7 @@ public class StatLottoRepositoryUnitTest {
                 List<Integer> numberList = new ArrayList<>(Arrays.asList(number));
 
                 // when
-                List<StatLotto> statLottoList = statLottoRepository.findByNumberList(numberList);
+                List<StatLotto> statLottoList = statLottoRepository.findByNumberIn(numberList);
 
                 // then
                 assertThat(statLottoList)
@@ -112,7 +110,7 @@ public class StatLottoRepositoryUnitTest {
                 List<Integer> numberList = new ArrayList<>(Arrays.asList(number));
 
                 // when
-                List<StatLotto> statLottoList = statLottoRepository.findByNumberList(numberList);
+                List<StatLotto> statLottoList = statLottoRepository.findByNumberIn(numberList);
 
                 // then
                 assertThat(statLottoList)
@@ -142,6 +140,7 @@ public class StatLottoRepositoryUnitTest {
             @DisplayName("실패")
             void fail() {
                 // given
+                statLottoRepository.deleteAll();
 
                 // when
                 List<StatLotto> statLottoList = statLottoRepository.findAll();
