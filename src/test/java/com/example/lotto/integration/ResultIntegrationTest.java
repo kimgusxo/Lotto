@@ -66,6 +66,8 @@ public class ResultIntegrationTest {
                 ResponseEntity<ResultDTO> response
                         = testRestTemplate.getForEntity("/result/get/round/" + round, ResultDTO.class);
 
+                ResultDTO resultDTO = response.getBody();
+
                 // then
                 assertThat(response)
                         .isNotNull();
@@ -73,13 +75,13 @@ public class ResultIntegrationTest {
                 assertThat(response.getStatusCode())
                         .isEqualTo(HttpStatus.OK);
 
-                assertThat(response.getBody().getRound())
+                assertThat(resultDTO.getRound())
                         .isEqualTo(result.getRound());
-                assertThat(response.getBody().getNumbers())
+                assertThat(resultDTO.getNumbers())
                         .isEqualTo(result.getNumbers());
-                assertThat(response.getBody().getBonusNumber())
+                assertThat(resultDTO.getBonusNumber())
                         .isEqualTo(result.getBonusNumber());
-                assertThat(response.getBody().getDate())
+                assertThat(resultDTO.getDate())
                         .isEqualTo(result.getDate());
             }
 
@@ -93,6 +95,8 @@ public class ResultIntegrationTest {
                 ResponseEntity<ErrorDTO> errorResponse
                         = testRestTemplate.getForEntity("/result/get/round/" + notExistRound, ErrorDTO.class);
 
+                ErrorDTO errorDTO = errorResponse.getBody();
+
                 // then
                 assertThat(errorResponse)
                         .isNotNull();
@@ -100,10 +104,10 @@ public class ResultIntegrationTest {
                 assertThat(errorResponse.getStatusCode())
                         .isEqualTo(HttpStatus.BAD_REQUEST);
 
-                assertThat(errorResponse.getBody().getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT.getCode());
-                assertThat(errorResponse.getBody().getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT.getDetail());
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_ROUND.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_ROUND.getDetail());
 
             }
 
@@ -117,6 +121,8 @@ public class ResultIntegrationTest {
                 ResponseEntity<ErrorDTO> errorResponse
                         = testRestTemplate.getForEntity("/result/get/round/" + inValidRound, ErrorDTO.class);
 
+                ErrorDTO errorDTO = errorResponse.getBody();
+
                 // then
                 assertThat(errorResponse)
                         .isNotNull();
@@ -124,9 +130,9 @@ public class ResultIntegrationTest {
                 assertThat(errorResponse.getStatusCode())
                         .isEqualTo(HttpStatus.BAD_REQUEST);
 
-                assertThat(errorResponse.getBody().getCode())
+                assertThat(errorDTO.getCode())
                         .isEqualTo(ErrorCode.VALIDATION.getCode());
-                assertThat(errorResponse.getBody().getDetail())
+                assertThat(errorDTO.getDetail())
                         .isEqualTo(ErrorCode.VALIDATION.getDetail());
             }
         }
@@ -139,10 +145,32 @@ public class ResultIntegrationTest {
             @DisplayName("성공")
             void success() {
                 // given
+                Integer number = 3;
 
                 // when
+                ResponseEntity<ResultDTO[]> response =
+                        testRestTemplate.getForEntity("/result/get/number/" + number, ResultDTO[].class);
+
+                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
 
                 // then
+                assertThat(response)
+                        .isNotNull();
+
+                assertThat(response.getStatusCode())
+                        .isEqualTo(HttpStatus.OK);
+
+                assertThat(resultDTOList)
+                        .isNotEmpty();
+                assertThat(resultDTOList.get(0).getRound())
+                        .isEqualTo(result.getRound());
+                assertThat(resultDTOList.get(0).getNumbers())
+                        .isEqualTo(result.getNumbers());
+                assertThat(resultDTOList.get(0).getBonusNumber())
+                        .isEqualTo(result.getBonusNumber());
+                assertThat(resultDTOList.get(0).getDate())
+                        .isEqualTo(result.getDate());
+
 
             }
 
@@ -150,11 +178,50 @@ public class ResultIntegrationTest {
             @DisplayName("실패")
             void fail() {
                 // given
+                Integer notExistNumber = 1;
 
                 // when
+                ResponseEntity<ErrorDTO> errorResponse
+                        = testRestTemplate.getForEntity("/result/get/number/" + notExistNumber, ErrorDTO.class);
+
+                ErrorDTO errorDTO = errorResponse.getBody();
 
                 // then
+                assertThat(errorResponse)
+                        .isNotNull();
 
+                assertThat(errorResponse.getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST);
+
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_NUMBER.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_NUMBER.getDetail());
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() {
+                // given
+                Integer inValidNumber = 1;
+
+                // when
+                ResponseEntity<ErrorDTO> errorResponse
+                        = testRestTemplate.getForEntity("/result/get/number/" + inValidNumber, ErrorDTO.class);
+
+                ErrorDTO errorDTO = errorResponse.getBody();
+
+                // then
+                assertThat(errorResponse)
+                        .isNotNull();
+
+                assertThat(errorResponse.getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST);
+
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.VALIDATION.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
             }
 
         }
@@ -166,22 +233,82 @@ public class ResultIntegrationTest {
             @DisplayName("성공")
             void success() {
                 // given
+                Integer bonusNumber = 4;
 
                 // when
+                ResponseEntity<ResultDTO[]> response =
+                        testRestTemplate.getForEntity("/result/get/bonusNumber/" + bonusNumber, ResultDTO[].class);
+
+                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
 
                 // then
+                assertThat(response)
+                        .isNotNull();
 
+                assertThat(response.getStatusCode())
+                        .isEqualTo(HttpStatus.OK);
+
+                assertThat(resultDTOList)
+                        .isNotEmpty();
+                assertThat(resultDTOList.get(0).getRound())
+                        .isEqualTo(result.getRound());
+                assertThat(resultDTOList.get(0).getNumbers())
+                        .isEqualTo(result.getNumbers());
+                assertThat(resultDTOList.get(0).getBonusNumber())
+                        .isEqualTo(result.getBonusNumber());
+                assertThat(resultDTOList.get(0).getDate())
+                        .isEqualTo(result.getDate());
             }
 
             @Test
             @DisplayName("실패")
             void fail() {
                 // given
+                Integer notExistBonusNumber = 1;
 
                 // when
+                ResponseEntity<ErrorDTO> errorResponse
+                        = testRestTemplate.getForEntity("/result/get/bonusNumber/" + notExistBonusNumber, ErrorDTO.class);
+
+                ErrorDTO errorDTO = errorResponse.getBody();
 
                 // then
+                assertThat(errorResponse)
+                        .isNotNull();
 
+                assertThat(errorResponse.getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST);
+
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER.getDetail());
+
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() {
+                // given
+                Integer inValidBonusNumber = 1;
+
+                // when
+                ResponseEntity<ErrorDTO> errorResponse
+                        = testRestTemplate.getForEntity("/result/get/bonusNumber/" + inValidBonusNumber, ErrorDTO.class);
+
+                ErrorDTO errorDTO = errorResponse.getBody();
+
+                // then
+                assertThat(errorResponse)
+                        .isNotNull();
+
+                assertThat(errorResponse.getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST);
+
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.VALIDATION.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
             }
         }
 
@@ -192,22 +319,87 @@ public class ResultIntegrationTest {
             @DisplayName("성공")
             void success() {
                 // given
+                LocalDate startDate = LocalDate.parse("2024-03-01");
+                LocalDate endDate = LocalDate.parse("2024-03-31");
+                String url = String.format("/get/date?startDate=%s&endDate=%s", startDate, endDate);
 
                 // when
+                ResponseEntity<ResultDTO[]> response =
+                        testRestTemplate.getForEntity(url, ResultDTO[].class);
+
+                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
 
                 // then
+                assertThat(response)
+                        .isNotNull();
 
+                assertThat(response.getStatusCode())
+                        .isEqualTo(HttpStatus.OK);
+
+                assertThat(resultDTOList)
+                        .isNotEmpty();
+                assertThat(resultDTOList.get(0).getRound())
+                        .isEqualTo(result.getRound());
+                assertThat(resultDTOList.get(0).getNumbers())
+                        .isEqualTo(result.getNumbers());
+                assertThat(resultDTOList.get(0).getBonusNumber())
+                        .isEqualTo(result.getBonusNumber());
+                assertThat(resultDTOList.get(0).getDate())
+                        .isEqualTo(result.getDate());
             }
 
             @Test
             @DisplayName("실패")
             void fail() {
                 // given
+                LocalDate startDate = LocalDate.parse("1999-03-01");
+                LocalDate endDate = LocalDate.parse("1999-03-31");
+                String url = String.format("/get/date?startDate=%s&endDate=%s", startDate, endDate);
 
                 // when
+                ResponseEntity<ErrorDTO> errorResponse
+                        = testRestTemplate.getForEntity(url, ErrorDTO.class);
+
+                ErrorDTO errorDTO = errorResponse.getBody();
 
                 // then
+                assertThat(errorResponse)
+                        .isNotNull();
 
+                assertThat(errorResponse.getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST);
+
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.INCORRECT_RESULT_DATE.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.INCORRECT_RESULT_DATE.getDetail());
+            }
+
+            @Test
+            @DisplayName("실패(Validation 예외)")
+            void fail_valid() {
+                // given
+                LocalDate startDate = LocalDate.parse("9999-03-01");
+                LocalDate endDate = LocalDate.parse("9999-03-31");
+                String url = String.format("/get/date?startDate=%s&endDate=%s", startDate, endDate);
+
+                // when
+                ResponseEntity<ErrorDTO> errorResponse
+                        = testRestTemplate.getForEntity(url, ErrorDTO.class);
+
+                ErrorDTO errorDTO = errorResponse.getBody();
+
+                // then
+                assertThat(errorResponse)
+                        .isNotNull();
+
+                assertThat(errorResponse.getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST);
+
+                assertThat(errorDTO.getCode())
+                        .isEqualTo(ErrorCode.VALIDATION.getCode());
+                assertThat(errorDTO.getDetail())
+                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
             }
         }
     }
@@ -240,6 +432,63 @@ public class ResultIntegrationTest {
                 // then
 
             }
+
+            @Nested
+            @DisplayName("Validation 테스트")
+            class Test_Insert_Valid {
+
+                @Test
+                @DisplayName("실패(Validation_Round 예외)")
+                void fail_valid_round() {
+                    // given
+
+                    // when
+
+                    // then
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Numbers 예외)")
+                void fail_valid_numbers() {
+                    // given
+
+                    // when
+
+                    // then
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Number 예외)")
+                void fail_valid_number() {
+                    // given
+
+                    // when
+
+                    // then
+                }
+
+                @Test
+                @DisplayName("실패(Validation_BonusNumber 예외)")
+                void fail_valid_bonusNumber() {
+                    // given
+
+                    // when
+
+                    // then
+                }
+
+                @Test
+                @DisplayName("실패(Validation_Date 예외)")
+                void fail_valid_date() {
+                    // given
+
+                    // when
+
+                    // then
+                }
+
+            }
+
         }
 
     }
@@ -310,7 +559,7 @@ public class ResultIntegrationTest {
 
     @AfterEach
     @DisplayName("데이터 삭제")
-    void cleanUp() {
+    void clean() {
         resultRepository.deleteAll();
     }
 
