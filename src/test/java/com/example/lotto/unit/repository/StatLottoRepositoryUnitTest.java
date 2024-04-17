@@ -84,8 +84,8 @@ public class StatLottoRepositoryUnitTest {
         }
 
         @Nested
-        @DisplayName("findByNumberList 테스트")
-        class Test_FindByNumberList {
+        @DisplayName("findByNumberIn 테스트")
+        class Test_FindByNumberIn {
 
             @Test
             @DisplayName("성공")
