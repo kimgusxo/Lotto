@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface StatLottoRepository extends MongoRepository<StatLotto, String> {
-    Boolean existsByNumber(Integer number);
+    boolean existsByNumber(Integer number);
     StatLotto findByNumber(Integer number);
     List<StatLotto> findByNumberIn(List<Integer> numberList);
 }

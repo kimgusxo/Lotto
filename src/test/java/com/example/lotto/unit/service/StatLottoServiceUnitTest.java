@@ -219,7 +219,7 @@ public class StatLottoServiceUnitTest {
                 // when & then
                 assertThatThrownBy(() -> statLottoService.readAll())
                         .isInstanceOf(CustomException.class)
-                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_STAT_LOTTO);
+                        .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_EXIST_STAT_LOTTO_LIST);
 
                 then(statLottoRepository).should(times(1)).findAll();
 

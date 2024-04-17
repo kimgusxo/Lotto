@@ -2,11 +2,14 @@ package com.example.lotto.service;
 
 import com.example.lotto.domain.StatLotto;
 import com.example.lotto.domain.dto.StatLottoDTO;
+import com.example.lotto.error.CustomException;
+import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.StatLottoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,5 +54,48 @@ public class StatLottoService {
             });
 
             return statLottoDTOList;
+    }
+
+    @Transactional
+    public StatLottoDTO readByNumber(Integer number) {
+        boolean flag = statLottoRepository.existsByNumber(number);
+
+        if(!flag) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_STAT_LOTTO);
+        }
+
+        return statLottoRepository.findByNumber(number).toDTO();
+    }
+
+    @Transactional
+    public List<StatLottoDTO> readByNumberList(List<Integer> numberList) {
+        List<StatLotto> statLottoList = statLottoRepository.findByNumberIn(numberList);
+
+        if(statLottoList.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_STAT_LOTTO);
+        }
+
+        List<StatLottoDTO> statLottoDTOList = new ArrayList<>();
+        statLottoList.forEach(s -> {
+            statLottoDTOList.add(s.toDTO());
+        });
+
+        return statLottoDTOList;
+    }
+
+    @Transactional
+    public List<StatLottoDTO> readAll() {
+        List<StatLotto> statLottoList = statLottoRepository.findAll();
+
+        if(statLottoList.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_STAT_LOTTO_LIST);
+        }
+
+        List<StatLottoDTO> statLottoDTOList = new ArrayList<>();
+        statLottoList.forEach(s -> {
+            statLottoDTOList.add(s.toDTO());
+        });
+
+        return statLottoDTOList;
     }
 }

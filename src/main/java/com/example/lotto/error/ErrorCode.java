@@ -33,10 +33,14 @@ public enum ErrorCode {
     INCORRECT_WINNING_REPORT_DATE("202_INCORRECT_WINNING_REPORT_DATE_TOKEN", "올바른 날짜가 아닙니다."),
 
     // 300번대
-    NOT_EXIST_CRAWLING_MODEL("300_NOT_EXIST_CRAWLING_MODEL", "크롤링 데이터가 존재하지 않습니다."),
+    NOT_EXIST_STAT_LOTTO("300_NOT_EXIST_STAT_LOTTO", "해당 로또 분석 결과가 존재하지 않습니다"),
+    NOT_EXIST_STAT_LOTTO_LIST("301_NOT_EXIST_STAT_LOTTO_LIST", "모든 로또 분석 결과가 존재하지 않습니다."),
 
     // 400번대
-    VALIDATION("400_VALIDATION", "형식이 일치하지 않습니다.");
+    NOT_EXIST_CRAWLING_MODEL("400_NOT_EXIST_CRAWLING_MODEL", "크롤링 데이터가 존재하지 않습니다."),
+
+    // 500번대
+    VALIDATION("500_VALIDATION", "형식이 일치하지 않습니다.");
 
     private final String code;
     private final String detail;
