@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -99,6 +100,124 @@ public class StatLottoControllerUnitTest {
                         .andExpect(status().isInternalServerError());
 
             }
+        }
+
+        @Nested
+        @DisplayName("getByNumber 테스트")
+        class Test_GetByNumber {
+
+            @Test
+            @DisplayName("성공")
+            void success() throws Exception {
+                // given
+                Integer number = 1;
+
+                given(statLottoService.readByNumber(number)).willReturn(statLottoDTO);
+
+                // when & then
+                mvc.perform(get("/statLotto/get/number" + number)
+                            .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.number").value(number))
+                        .andExpect(status().isOk());
+            }
+
+            @Test
+            @DisplayName("실패")
+            void fail() throws Exception {
+                // given
+                Integer number = -1;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_STAT_LOTTO;
+
+                given(statLottoService.readByNumber(number)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
+
+                // when & then
+                mvc.perform(get("/statLotto/get/number" + number)
+                            .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.number").value(number))
+                        .andExpect(status().isOk());
+
+            }
+
+        }
+
+        @Nested
+        @DisplayName("getByNumberList 테스트")
+        class Test_GetByNumberList {
+
+            @Test
+            @DisplayName("성공")
+            void success() throws Exception {
+                // given
+                List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2 ,3));
+                List<StatLottoDTO> statLottoDTOList = new ArrayList<>(Arrays.asList(statLottoDTO));
+
+                given(statLottoService.readByNumberList(numberList)).willReturn(statLottoDTOList);
+
+                // when & then
+                mvc.perform(get("/statLotto/get/numberList")
+                            .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$", hasSize(1)))
+                        .andExpect(jsonPath("$[0].number").value(statLottoDTO.getNumber()))
+                        .andExpect(status().isOk());
+
+            }
+
+            @Test
+            @DisplayName("실패")
+            void fail() throws Exception {
+                // given
+                List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2 ,3));
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_STAT_LOTTO;
+
+                given(statLottoService.readByNumberList(numberList)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
+
+                // when & then
+                mvc.perform(get("/statLotto/get/numberList")
+                            .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
+            }
+
+        }
+
+        @Nested
+        @DisplayName("getAll 테스트")
+        class Test_GetAll {
+
+            @Test
+            @DisplayName("성공")
+            void success() throws Exception {
+                // given
+                List<StatLottoDTO> statLottoDTOList = new ArrayList<>(Arrays.asList(statLottoDTO));
+
+                given(statLottoService.readAll()).willReturn(statLottoDTOList);
+
+                // when & then
+                mvc.perform(get("/statLotto/get/all")
+                            .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$", hasSize(1)))
+                        .andExpect(jsonPath("$[0].number").value(statLottoDTO.getNumber()))
+                        .andExpect(status().isOk());
+
+            }
+
+            @Test
+            @DisplayName("실패")
+            void fail() throws Exception {
+                // given
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_STAT_LOTTO_LIST;
+
+                given(statLottoService.readAll()).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
+
+                // when & then
+                mvc.perform(get("/statLotto/get/all")
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
+            }
+
         }
 
     }
