@@ -44,27 +44,27 @@ public class StatLottoControllerUnitTest {
     @DisplayName("GET 테스트")
     class Test_GET {
 
+        @BeforeEach
+        @DisplayName("데이터 설정")
+        void setUp() {
+            Integer number = 1;
+            Integer count = 1;
+            Double probability = 1.11111;
+            Integer bonusCount = 1;
+            Double bonusProbability = 1.11111;
+
+            statLottoDTO = StatLottoDTO.builder()
+                    .number(number)
+                    .count(count)
+                    .probability(probability)
+                    .bonusCount(bonusCount)
+                    .bonusProbability(bonusProbability)
+                    .build();
+        }
+
         @Nested
         @DisplayName("calcStatLotto 테스트")
         class Test_CalcStatLotto {
-
-            @BeforeEach
-            @DisplayName("데이터 설정")
-            void setUp() {
-                Integer number = 1;
-                Integer count = 1;
-                Double probability = 1.11111;
-                Integer bonusCount = 1;
-                Double bonusProbability = 1.11111;
-
-                statLottoDTO = StatLottoDTO.builder()
-                        .number(number)
-                        .count(count)
-                        .probability(probability)
-                        .bonusCount(bonusCount)
-                        .bonusProbability(bonusProbability)
-                        .build();
-            }
 
             @Test
             @DisplayName("성공")
@@ -115,7 +115,7 @@ public class StatLottoControllerUnitTest {
                 given(statLottoService.readByNumber(number)).willReturn(statLottoDTO);
 
                 // when & then
-                mvc.perform(get("/statLotto/get/number" + number)
+                mvc.perform(get("/statLotto/get/number/" + number)
                             .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.number").value(number))
                         .andExpect(status().isOk());
@@ -131,10 +131,11 @@ public class StatLottoControllerUnitTest {
                 given(statLottoService.readByNumber(number)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
 
                 // when & then
-                mvc.perform(get("/statLotto/get/number" + number)
+                mvc.perform(get("/statLotto/get/number/" + number)
                             .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(jsonPath("$.number").value(number))
-                        .andExpect(status().isOk());
+                        .andExpect(jsonPath("$.code").value(errorCode.getCode()))
+                        .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
+                        .andExpect(status().isBadRequest());
 
             }
 
@@ -155,7 +156,8 @@ public class StatLottoControllerUnitTest {
 
                 // when & then
                 mvc.perform(get("/statLotto/get/numberList")
-                            .contentType(MediaType.APPLICATION_JSON))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .queryParam("numberList", "1", "2", "3"))
                         .andExpect(jsonPath("$", hasSize(1)))
                         .andExpect(jsonPath("$[0].number").value(statLottoDTO.getNumber()))
                         .andExpect(status().isOk());
@@ -173,7 +175,8 @@ public class StatLottoControllerUnitTest {
 
                 // when & then
                 mvc.perform(get("/statLotto/get/numberList")
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .queryParam("numberList", "1", "2", "3"))
                         .andExpect(jsonPath("$.code").value(errorCode.getCode()))
                         .andExpect(jsonPath("$.detail").value(errorCode.getDetail()))
                         .andExpect(status().isBadRequest());

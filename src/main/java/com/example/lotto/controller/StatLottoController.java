@@ -5,9 +5,7 @@ import com.example.lotto.service.StatLottoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +23,24 @@ public class StatLottoController {
     @GetMapping("/get/calc")
     public ResponseEntity<List<StatLottoDTO>> calcStatLotto() {
         List<StatLottoDTO> statLottoDTOList = statLottoService.calcStatLotto();
+        return new ResponseEntity<>(statLottoDTOList, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/number/{number}")
+    public ResponseEntity<StatLottoDTO> getByNumber(@PathVariable Integer number) {
+        StatLottoDTO statLottoDTO = statLottoService.readByNumber(number);
+        return new ResponseEntity<>(statLottoDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/numberList")
+    public ResponseEntity<List<StatLottoDTO>> getByNumberList(@RequestParam List<Integer> numberList) {
+        List<StatLottoDTO> statLottoDTOList = statLottoService.readByNumberList(numberList);
+        return new ResponseEntity<>(statLottoDTOList, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/all")
+    public ResponseEntity<List<StatLottoDTO>> getAll() {
+        List<StatLottoDTO> statLottoDTOList = statLottoService.readAll();
         return new ResponseEntity<>(statLottoDTOList, HttpStatus.OK);
     }
 
