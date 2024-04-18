@@ -36,7 +36,7 @@ public class ResultIntegrationTest {
     @DisplayName("GET API 테스트")
     class Test_GET {
 
-        private Result result;
+        private ResultDTO resultDTO;
 
         @BeforeEach
         @DisplayName("데이터 생성")
@@ -46,14 +46,14 @@ public class ResultIntegrationTest {
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
-            result = Result.builder()
+            resultDTO = ResultDTO.builder()
                     .round(round)
                     .numbers(numbers)
                     .bonusNumber(bonusNumber)
                     .date(date)
                     .build();
 
-            resultRepository.save(result);
+            resultRepository.save(resultDTO.toEntity());
         }
 
         @Nested
@@ -70,28 +70,13 @@ public class ResultIntegrationTest {
                 ResponseEntity<ResultDTO> response
                         = testRestTemplate.getForEntity("/result/get/round/" + round, ResultDTO.class);
 
-                ResultDTO resultDTO = response.getBody();
+                ResultDTO findResultDTO = response.getBody();
 
                 // then
-                assertThat(response)
-                        .isNotNull();
+                resultAssertThat(response, resultDTO, findResultDTO, HttpStatus.OK);
 
-                assertThat(response.getStatusCode())
-                        .isEqualTo(HttpStatus.OK);
-
-                assertThat(resultDTO.getRound())
-                        .isEqualTo(result.getRound());
-                assertThat(resultDTO.getNumbers())
-                        .isEqualTo(result.getNumbers());
-                assertThat(resultDTO.getBonusNumber())
-                        .isEqualTo(result.getBonusNumber());
-                assertThat(resultDTO.getDate())
-                        .isEqualTo(result.getDate());
-
-                log.info("round: {}", resultDTO.getRound());
-                log.info("numbers: {}", resultDTO.getNumbers());
-                log.info("bonusNumber: {}", resultDTO.getBonusNumber());
-                log.info("date: {}", resultDTO.getDate());
+                // log
+                logger(resultDTO);
             }
 
             @Test
@@ -105,21 +90,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity("/result/get/round/" + notExistRound, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_ROUND;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_ROUND.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_ROUND.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
 
             }
 
@@ -134,21 +111,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity("/result/get/round/" + inValidRound, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.VALIDATION;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.VALIDATION.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
             }
         }
 
@@ -169,28 +138,10 @@ public class ResultIntegrationTest {
                 List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
 
                 // then
-                assertThat(response)
-                        .isNotNull();
+                resultListAssertThat(response, resultDTO, resultDTOList, HttpStatus.OK);
 
-                assertThat(response.getStatusCode())
-                        .isEqualTo(HttpStatus.OK);
-
-                assertThat(resultDTOList)
-                        .isNotEmpty();
-                assertThat(resultDTOList.get(0).getRound())
-                        .isEqualTo(result.getRound());
-                assertThat(resultDTOList.get(0).getNumbers())
-                        .isEqualTo(result.getNumbers());
-                assertThat(resultDTOList.get(0).getBonusNumber())
-                        .isEqualTo(result.getBonusNumber());
-                assertThat(resultDTOList.get(0).getDate())
-                        .isEqualTo(result.getDate());
-
-
-                log.info("round: {}", resultDTOList.get(0).getRound());
-                log.info("numbers: {}", resultDTOList.get(0).getNumbers());
-                log.info("bonusNumber: {}", resultDTOList.get(0).getBonusNumber());
-                log.info("date: {}", resultDTOList.get(0).getDate());
+                // log
+                logger(resultDTOList.get(0));
 
             }
 
@@ -205,21 +156,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity("/result/get/number/" + notExistNumber, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_NUMBER;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_NUMBER.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_NUMBER.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
             }
 
             @Test
@@ -233,21 +176,12 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity("/result/get/number/" + inValidNumber, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.VALIDATION;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
-
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.VALIDATION.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                errorAssertThat(errorResponse, errorDTO, errorCode);
+                // log
+                errorLogger(errorDTO);
             }
 
         }
@@ -268,27 +202,10 @@ public class ResultIntegrationTest {
                 List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
 
                 // then
-                assertThat(response)
-                        .isNotNull();
+                resultListAssertThat(response, resultDTO, resultDTOList, HttpStatus.OK);
 
-                assertThat(response.getStatusCode())
-                        .isEqualTo(HttpStatus.OK);
-
-                assertThat(resultDTOList)
-                        .isNotEmpty();
-                assertThat(resultDTOList.get(0).getRound())
-                        .isEqualTo(result.getRound());
-                assertThat(resultDTOList.get(0).getNumbers())
-                        .isEqualTo(result.getNumbers());
-                assertThat(resultDTOList.get(0).getBonusNumber())
-                        .isEqualTo(result.getBonusNumber());
-                assertThat(resultDTOList.get(0).getDate())
-                        .isEqualTo(result.getDate());
-
-                log.info("round: {}", resultDTOList.get(0).getRound());
-                log.info("numbers: {}", resultDTOList.get(0).getNumbers());
-                log.info("bonusNumber: {}", resultDTOList.get(0).getBonusNumber());
-                log.info("date: {}", resultDTOList.get(0).getDate());
+                // log
+                logger(resultDTOList.get(0));
             }
 
             @Test
@@ -302,21 +219,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity("/result/get/bonusNumber/" + notExistBonusNumber, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_BONUS_NUMBER.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
             }
 
             @Test
@@ -330,21 +239,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity("/result/get/bonusNumber/" + inValidBonusNumber, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.VALIDATION;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.VALIDATION.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
             }
         }
 
@@ -366,27 +267,10 @@ public class ResultIntegrationTest {
                 List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
 
                 // then
-                assertThat(response)
-                        .isNotNull();
+                resultListAssertThat(response, resultDTO, resultDTOList, HttpStatus.OK);
 
-                assertThat(response.getStatusCode())
-                        .isEqualTo(HttpStatus.OK);
-
-                assertThat(resultDTOList)
-                        .isNotEmpty();
-                assertThat(resultDTOList.get(0).getRound())
-                        .isEqualTo(result.getRound());
-                assertThat(resultDTOList.get(0).getNumbers())
-                        .isEqualTo(result.getNumbers());
-                assertThat(resultDTOList.get(0).getBonusNumber())
-                        .isEqualTo(result.getBonusNumber());
-                assertThat(resultDTOList.get(0).getDate())
-                        .isEqualTo(result.getDate());
-
-                log.info("round: {}", resultDTOList.get(0).getRound());
-                log.info("numbers: {}", resultDTOList.get(0).getNumbers());
-                log.info("bonusNumber: {}", resultDTOList.get(0).getBonusNumber());
-                log.info("date: {}", resultDTOList.get(0).getDate());
+                // log
+                logger(resultDTOList.get(0));
             }
 
             @Test
@@ -402,21 +286,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity(url, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.INCORRECT_RESULT_DATE;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.INCORRECT_RESULT_DATE.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.INCORRECT_RESULT_DATE.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
             }
 
             @Test
@@ -432,21 +308,13 @@ public class ResultIntegrationTest {
                         = testRestTemplate.getForEntity(url, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.VALIDATION;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.VALIDATION.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
             }
         }
     }
@@ -488,25 +356,10 @@ public class ResultIntegrationTest {
                 ResultDTO savedResultDTO = response.getBody();
 
                 // then
-                assertThat(response)
-                        .isNotNull();
+                resultAssertThat(response, resultDTO, savedResultDTO, HttpStatus.CREATED);
 
-                assertThat(response.getStatusCode())
-                        .isEqualTo(HttpStatus.CREATED);
-
-                assertThat(savedResultDTO.getRound())
-                        .isEqualTo(resultDTO.getRound());
-                assertThat(savedResultDTO.getNumbers())
-                        .isEqualTo(resultDTO.getNumbers());
-                assertThat(savedResultDTO.getBonusNumber())
-                        .isEqualTo(resultDTO.getBonusNumber());
-                assertThat(savedResultDTO.getDate())
-                        .isEqualTo(resultDTO.getDate());
-
-                log.info("savedRound: {}", savedResultDTO.getRound());
-                log.info("savedNumbers: {}", savedResultDTO.getNumbers());
-                log.info("savedBonusNumber: {}", savedResultDTO.getBonusNumber());
-                log.info("savedDate: {}", savedResultDTO.getDate());
+                // log
+                logger(savedResultDTO);
 
             }
 
@@ -521,21 +374,13 @@ public class ResultIntegrationTest {
                         testRestTemplate.postForEntity("/result/post/insert", notExistResult, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
 
             }
 
@@ -555,21 +400,13 @@ public class ResultIntegrationTest {
                             testRestTemplate.postForEntity("/result/post/insert", resultDTO, ErrorDTO.class);
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -584,21 +421,13 @@ public class ResultIntegrationTest {
                             testRestTemplate.postForEntity("/result/post/insert", resultDTO, ErrorDTO.class);
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -613,21 +442,13 @@ public class ResultIntegrationTest {
                             testRestTemplate.postForEntity("/result/post/insert", resultDTO, ErrorDTO.class);
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -642,21 +463,13 @@ public class ResultIntegrationTest {
                             testRestTemplate.postForEntity("/result/post/insert", resultDTO, ErrorDTO.class);
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -671,21 +484,13 @@ public class ResultIntegrationTest {
                             testRestTemplate.postForEntity("/result/post/insert", resultDTO, ErrorDTO.class);
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
             }
@@ -744,25 +549,10 @@ public class ResultIntegrationTest {
                 ResultDTO updatedResultDTO = response.getBody();
 
                 // then
-                assertThat(response)
-                        .isNotNull();
+                resultAssertThat(response, resultDTO, updatedResultDTO, HttpStatus.CREATED);
 
-                assertThat(response.getStatusCode())
-                        .isEqualTo(HttpStatus.CREATED);
-
-                assertThat(updatedResultDTO.getRound())
-                        .isEqualTo(resultDTO.getRound());
-                assertThat(updatedResultDTO.getNumbers())
-                        .isEqualTo(resultDTO.getNumbers());
-                assertThat(updatedResultDTO.getBonusNumber())
-                        .isEqualTo(resultDTO.getBonusNumber());
-                assertThat(updatedResultDTO.getDate())
-                        .isEqualTo(resultDTO.getDate());
-
-                log.info("updatedRound: {}", updatedResultDTO.getRound());
-                log.info("updatedNumbers: {}", updatedResultDTO.getNumbers());
-                log.info("updatedBonusNumber: {}", updatedResultDTO.getBonusNumber());
-                log.info("updatedDate: {}", updatedResultDTO.getDate());
+                // log
+                logger(updatedResultDTO);
 
             }
 
@@ -785,21 +575,13 @@ public class ResultIntegrationTest {
                         );
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
 
             }
 
@@ -825,21 +607,13 @@ public class ResultIntegrationTest {
                             );
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -862,21 +636,13 @@ public class ResultIntegrationTest {
                             );
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -898,21 +664,12 @@ public class ResultIntegrationTest {
                             );
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
-
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -934,21 +691,13 @@ public class ResultIntegrationTest {
                             );
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -970,21 +719,13 @@ public class ResultIntegrationTest {
                             );
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
                 @Test
@@ -1006,21 +747,13 @@ public class ResultIntegrationTest {
                             );
 
                     ErrorDTO errorDTO = errorResponse.getBody();
+                    ErrorCode errorCode = ErrorCode.VALIDATION;
 
                     // then
-                    assertThat(errorResponse)
-                            .isNotNull();
+                    errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                    assertThat(errorResponse.getStatusCode())
-                            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                    assertThat(errorDTO.getCode())
-                            .isEqualTo(ErrorCode.VALIDATION.getCode());
-                    assertThat(errorDTO.getDetail())
-                            .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                    log.info("code: {}", errorDTO.getCode());
-                    log.info("detail: {}", errorDTO.getDetail());
+                    // log
+                    errorLogger(errorDTO);
                 }
 
             }
@@ -1091,21 +824,13 @@ public class ResultIntegrationTest {
                         ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.VALIDATION;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_ROUND.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.NOT_EXIST_RESULT_ROUND.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
 
             }
 
@@ -1123,21 +848,13 @@ public class ResultIntegrationTest {
                         ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
+                ErrorCode errorCode = ErrorCode.VALIDATION;
 
                 // then
-                assertThat(errorResponse)
-                        .isNotNull();
+                errorAssertThat(errorResponse, errorDTO, errorCode);
 
-                assertThat(errorResponse.getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST);
-
-                assertThat(errorDTO.getCode())
-                        .isEqualTo(ErrorCode.VALIDATION.getCode());
-                assertThat(errorDTO.getDetail())
-                        .isEqualTo(ErrorCode.VALIDATION.getDetail());
-
-                log.info("code: {}", errorDTO.getCode());
-                log.info("detail: {}", errorDTO.getDetail());
+                // log
+                errorLogger(errorDTO);
 
             }
         }
@@ -1150,30 +867,74 @@ public class ResultIntegrationTest {
         resultRepository.deleteAll();
     }
 
-//    // resultList assertThat 함수
-//    void resultListAssertThat(List<ResultDTO> resultDTOList) {
-//
-//    }
-//
-//    // result assertThat 함수
-//    void resultAssertThat() {
-//
-//    }
-//
-//    // error assertThat 함수
-//    void errorAssertThat() {
-//
-//    }
-//
-//    // 정상 일때 logger
-//    void logger() {
-//
-//    }
-//
-//    // 에러 일때 logger
-//    void errorLogger() {
-//
-//    }
+    // result assertThat 함수
+    void resultAssertThat(ResponseEntity<ResultDTO> response, ResultDTO inputResultDTO,
+                          ResultDTO outputResultDTO, HttpStatus httpStatus) {
+        assertThat(response)
+                .isNotNull();
+
+        assertThat(response.getStatusCode())
+                .isEqualTo(httpStatus);
+
+        assertThat(outputResultDTO.getRound())
+                .isEqualTo(inputResultDTO.getRound());
+        assertThat(outputResultDTO.getNumbers())
+                .isEqualTo(inputResultDTO.getNumbers());
+        assertThat(outputResultDTO.getBonusNumber())
+                .isEqualTo(inputResultDTO.getBonusNumber());
+        assertThat(outputResultDTO.getDate())
+                .isEqualTo(inputResultDTO.getDate());
+    }
+
+    // resultList assertThat 함수
+    void resultListAssertThat(ResponseEntity<ResultDTO[]> response, ResultDTO inputResultDTO,
+                              List<ResultDTO> outputResultDTOList, HttpStatus httpStatus) {
+        assertThat(response)
+                .isNotNull();
+
+        assertThat(response.getStatusCode())
+                .isEqualTo(httpStatus);
+
+        assertThat(outputResultDTOList)
+                .isNotEmpty();
+
+        assertThat(outputResultDTOList.get(0).getRound())
+                .isEqualTo(inputResultDTO.getRound());
+        assertThat(outputResultDTOList.get(0).getNumbers())
+                .isEqualTo(inputResultDTO.getNumbers());
+        assertThat(outputResultDTOList.get(0).getBonusNumber())
+                .isEqualTo(inputResultDTO.getBonusNumber());
+        assertThat(outputResultDTOList.get(0).getDate())
+                .isEqualTo(inputResultDTO.getDate());
+    }
+
+    // error assertThat 함수
+    void errorAssertThat(ResponseEntity<ErrorDTO> errorResponse, ErrorDTO errorDTO, ErrorCode errorCode) {
+        assertThat(errorResponse)
+                .isNotNull();
+
+        assertThat(errorResponse.getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(errorDTO.getCode())
+                    .isEqualTo(errorCode.getCode());
+        assertThat(errorDTO.getDetail())
+                .isEqualTo(errorCode.getDetail());
+    }
+
+    // 정상 일때 logger
+    void logger(ResultDTO resultDTO) {
+        log.info("round: {}", resultDTO.getRound());
+        log.info("numbers: {}", resultDTO.getNumbers());
+        log.info("bonusNumber: {}", resultDTO.getBonusNumber());
+        log.info("date: {}", resultDTO.getDate());
+    }
+
+    // 에러 일때 logger
+    void errorLogger(ErrorDTO errorDTO) {
+        log.info("code: {}", errorDTO.getCode());
+        log.info("detail: {}", errorDTO.getDetail());
+    }
 
 
 }
