@@ -25,7 +25,7 @@ public class ResultService {
     public ResultDTO readByRound(Integer round) {
         boolean exist = resultRepository.existsByRound(round);
 
-        if(exist) {
+        if(!exist) {
             throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT_ROUND);
         }
 
@@ -68,7 +68,7 @@ public class ResultService {
         List<Result> resultList = resultRepository.findByDateBetween(startDate, endDate);
 
         if(resultList.isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_WINNING_REPORT_DATE);
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.INCORRECT_RESULT_DATE);
         }
 
         List<ResultDTO> resultDTOList = new ArrayList<>();

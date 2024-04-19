@@ -1,6 +1,5 @@
 package com.example.lotto.integration;
 
-import com.example.lotto.domain.Result;
 import com.example.lotto.domain.dto.ResultDTO;
 import com.example.lotto.error.ErrorCode;
 import com.example.lotto.error.ErrorDTO;
@@ -169,7 +168,7 @@ public class ResultIntegrationTest {
             @DisplayName("실패(Validation 예외)")
             void fail_valid() {
                 // given
-                Integer inValidNumber = 1;
+                Integer inValidNumber = -1;
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse
@@ -232,7 +231,7 @@ public class ResultIntegrationTest {
             @DisplayName("실패(Validation 예외)")
             void fail_valid() {
                 // given
-                Integer inValidBonusNumber = 1;
+                Integer inValidBonusNumber = -1;
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse
@@ -258,7 +257,7 @@ public class ResultIntegrationTest {
                 // given
                 LocalDate startDate = LocalDate.parse("2024-03-01");
                 LocalDate endDate = LocalDate.parse("2024-03-31");
-                String url = String.format("/get/date?startDate=%s&endDate=%s", startDate, endDate);
+                String url = "/result/get/date?startDate=" + startDate + "&endDate=" + endDate;
 
                 // when
                 ResponseEntity<ResultDTO[]> response =
@@ -279,7 +278,7 @@ public class ResultIntegrationTest {
                 // given
                 LocalDate startDate = LocalDate.parse("1999-03-01");
                 LocalDate endDate = LocalDate.parse("1999-03-31");
-                String url = String.format("/get/date?startDate=%s&endDate=%s", startDate, endDate);
+                String url = "/result/get/date?startDate=" + startDate + "&endDate=" + endDate;
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse
@@ -301,7 +300,7 @@ public class ResultIntegrationTest {
                 // given
                 LocalDate startDate = LocalDate.parse("9999-03-01");
                 LocalDate endDate = LocalDate.parse("9999-03-31");
-                String url = String.format("/get/date?startDate=%s&endDate=%s", startDate, endDate);
+                String url = "/result/get/date?startDate=" + startDate + "&endDate=" + endDate;
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse
@@ -367,14 +366,14 @@ public class ResultIntegrationTest {
             @DisplayName("실패")
             void fail() {
                 // given
-                ResultDTO notExistResult = null;
+                ResultDTO existResult = resultRepository.save(resultDTO.toEntity()).toDTO();
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.postForEntity("/result/post/insert", notExistResult, ErrorDTO.class);
+                        testRestTemplate.postForEntity("/result/post/insert", existResult, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
+                ErrorCode errorCode = ErrorCode.DUPLICATE_RESULT_ROUND;
 
                 // then
                 errorAssertThat(errorResponse, errorDTO, errorCode);
@@ -549,7 +548,7 @@ public class ResultIntegrationTest {
                 ResultDTO updatedResultDTO = response.getBody();
 
                 // then
-                resultAssertThat(response, resultDTO, updatedResultDTO, HttpStatus.CREATED);
+                resultAssertThat(response, resultDTO, updatedResultDTO, HttpStatus.ACCEPTED);
 
                 // log
                 logger(updatedResultDTO);
@@ -797,13 +796,13 @@ public class ResultIntegrationTest {
 
                 // when
                 ResponseEntity<Void> response = testRestTemplate.exchange(
-                        "/result/delete/round/" + round,
+                        "/result/delete/" + round,
                         HttpMethod.DELETE,
                         null,
                         Void.class);
 
                 // then
-                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
                 boolean isDeleted = resultRepository.existsByRound(round);
                 assertThat(isDeleted).isFalse();
@@ -818,13 +817,13 @@ public class ResultIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse = testRestTemplate.exchange(
-                        "/result/delete/round/" + notExistRound,
+                        "/result/delete/" + notExistRound,
                         HttpMethod.DELETE,
                         null,
                         ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
-                ErrorCode errorCode = ErrorCode.VALIDATION;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
 
                 // then
                 errorAssertThat(errorResponse, errorDTO, errorCode);
@@ -842,7 +841,7 @@ public class ResultIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse = testRestTemplate.exchange(
-                        "/result/delete/round/" + inValidRound,
+                        "/result/delete/" + inValidRound,
                         HttpMethod.DELETE,
                         null,
                         ErrorDTO.class);
