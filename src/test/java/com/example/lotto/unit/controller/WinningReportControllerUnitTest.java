@@ -397,8 +397,8 @@ public class WinningReportControllerUnitTest {
                 @DisplayName("실패(Validation_RankList 예외)")
                 void fail_valid_rankList() throws Exception {
                     // given
-                    List<RankDTO> inValidRankList = Arrays.asList(rankDTO);
-                    winningReportDTO.setRankDTOList(inValidRankList);
+                    List<RankDTO> inValidRankDTOList = Arrays.asList(rankDTO);
+                    winningReportDTO.setRankDTOList(inValidRankDTOList);
 
                     String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);
 

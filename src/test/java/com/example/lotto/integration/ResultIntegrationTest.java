@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class ResultIntegrationTest {
     private ResultDTO resultDTO;
 
     @BeforeEach
-    @DisplayName("데이터 생성")
+    @DisplayName("데이터 설정")
     void setUp() {
 
         Integer round = 1111;
@@ -354,11 +353,11 @@ public class ResultIntegrationTest {
             @DisplayName("실패")
             void fail() {
                 // given
-                ResultDTO existResult = resultRepository.save(resultDTO.toEntity()).toDTO();
+                ResultDTO existResultDTO = resultRepository.save(resultDTO.toEntity()).toDTO();
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.postForEntity("/result/post/insert", existResult, ErrorDTO.class);
+                        testRestTemplate.postForEntity("/result/post/insert", existResultDTO, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.DUPLICATE_RESULT_ROUND;
