@@ -71,8 +71,8 @@ public class ResultIntegrationTest {
                 Integer round = 1111;
 
                 // when
-                ResponseEntity<ResultDTO> response
-                        = testRestTemplate.getForEntity("/result/get/round/" + round, ResultDTO.class);
+                ResponseEntity<ResultDTO> response =
+                        testRestTemplate.getForEntity("/result/get/round/" + round, ResultDTO.class);
 
                 ResultDTO findResultDTO = response.getBody();
 
@@ -111,8 +111,8 @@ public class ResultIntegrationTest {
                 Integer inValidRound = -1;
 
                 // when
-                ResponseEntity<ErrorDTO> errorResponse
-                        = testRestTemplate.getForEntity("/result/get/round/" + inValidRound, ErrorDTO.class);
+                ResponseEntity<ErrorDTO> errorResponse =
+                        testRestTemplate.getForEntity("/result/get/round/" + inValidRound, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.VALIDATION;
