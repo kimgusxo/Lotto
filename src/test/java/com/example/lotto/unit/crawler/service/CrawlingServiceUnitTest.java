@@ -54,13 +54,13 @@ public class CrawlingServiceUnitTest {
 
         Integer round = 1111;
         LocalDate date = LocalDate.parse("2024-03-16");
-        List<Integer> numbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
         Integer bonusNumber = 4;
         Long totalWinningAmount = 1111L;
-        List<Integer> rankings = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
-        List<Integer> winningCounts = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
-        List<Long> totalWinningAmounts = new ArrayList<>(Arrays.asList(1L, 2L, 3L, 4L, 5L));
-        List<Long> winningAmounts = new ArrayList<>(Arrays.asList(1L, 2L, 3L, 4L, 5L));
+        List<Integer> rankings = Arrays.asList(1, 2, 3, 4, 5);
+        List<Integer> winningCounts = Arrays.asList(1, 2, 3, 4, 5);
+        List<Long> totalWinningAmounts = Arrays.asList(1L, 2L, 3L, 4L, 5L);
+        List<Long> winningAmounts = Arrays.asList(1L, 2L, 3L, 4L, 5L);
 
 
         crawlingModel.setRound(round);
@@ -235,7 +235,7 @@ public class CrawlingServiceUnitTest {
                     .winningAmount(crawlingModel.getWinningAmounts().get(0))
                     .build();
 
-            List<Rank> rankList = new ArrayList<>(Arrays.asList(rank));
+            List<Rank> rankList = Arrays.asList(rank);
 
             winningReport = WinningReport.builder()
                     .round(crawlingModel.getRound())
@@ -299,9 +299,9 @@ public class CrawlingServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
-                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
-                List<WinningReport> winningReportList = new ArrayList<>(Arrays.asList(winningReport));
+                List<CrawlingModel> crawlingModelList = Arrays.asList(crawlingModel);
+                List<Result> resultList = Arrays.asList(result);
+                List<WinningReport> winningReportList = Arrays.asList(winningReport);
 
                 given(resultRepository.saveAll(anyList())).willReturn(resultList);
                 given(winningReportRepository.saveAll(anyList())).willReturn(winningReportList);
@@ -318,7 +318,7 @@ public class CrawlingServiceUnitTest {
             @DisplayName("실패(ResultList)")
             void fail_resultList() {
                 // given
-                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
+                List<CrawlingModel> crawlingModelList = Arrays.asList(crawlingModel);
 
                 given(resultRepository.saveAll(anyList())).willThrow(IllegalArgumentException.class);
 
@@ -333,8 +333,8 @@ public class CrawlingServiceUnitTest {
             @DisplayName("실패(ResultList)")
             void fail_winningReportList() {
                 // given
-                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
-                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+                List<CrawlingModel> crawlingModelList = Arrays.asList(crawlingModel);
+                List<Result> resultList = Arrays.asList(result);
 
                 given(resultRepository.saveAll(anyList())).willReturn(resultList);
                 given(winningReportRepository.saveAll(anyList())).willThrow(IllegalArgumentException.class);

@@ -31,27 +31,33 @@ public class ResultIntegrationTest {
     @Autowired
     private ResultRepository resultRepository;
 
+    private ResultDTO resultDTO;
+
+    @BeforeEach
+    @DisplayName("데이터 생성")
+    void setUp() {
+
+        Integer round = 1111;
+        List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
+        Integer bonusNumber = 4;
+        LocalDate date = LocalDate.parse("2024-03-16");
+
+        resultDTO = ResultDTO.builder()
+                .round(round)
+                .numbers(numbers)
+                .bonusNumber(bonusNumber)
+                .date(date)
+                .build();
+
+    }
+
     @Nested
     @DisplayName("GET API 테스트")
     class Test_GET {
 
-        private ResultDTO resultDTO;
-
         @BeforeEach
         @DisplayName("데이터 생성")
-        void setUp() {
-            Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
-            Integer bonusNumber = 4;
-            LocalDate date = LocalDate.parse("2024-03-16");
-
-            resultDTO = ResultDTO.builder()
-                    .round(round)
-                    .numbers(numbers)
-                    .bonusNumber(bonusNumber)
-                    .date(date)
-                    .build();
-
+        void create() {
             resultRepository.save(resultDTO.toEntity());
         }
 
@@ -134,7 +140,7 @@ public class ResultIntegrationTest {
                 ResponseEntity<ResultDTO[]> response =
                         testRestTemplate.getForEntity("/result/get/number/" + number, ResultDTO[].class);
 
-                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
+                List<ResultDTO> resultDTOList = Arrays.asList(response.getBody());
 
                 // then
                 resultListAssertThat(response, resultDTO, resultDTOList, HttpStatus.OK);
@@ -198,7 +204,7 @@ public class ResultIntegrationTest {
                 ResponseEntity<ResultDTO[]> response =
                         testRestTemplate.getForEntity("/result/get/bonusNumber/" + bonusNumber, ResultDTO[].class);
 
-                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
+                List<ResultDTO> resultDTOList = Arrays.asList(response.getBody());
 
                 // then
                 resultListAssertThat(response, resultDTO, resultDTOList, HttpStatus.OK);
@@ -263,7 +269,7 @@ public class ResultIntegrationTest {
                 ResponseEntity<ResultDTO[]> response =
                         testRestTemplate.getForEntity(url, ResultDTO[].class);
 
-                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(response.getBody()));
+                List<ResultDTO> resultDTOList = Arrays.asList(response.getBody());
 
                 // then
                 resultListAssertThat(response, resultDTO, resultDTOList, HttpStatus.OK);
@@ -321,24 +327,6 @@ public class ResultIntegrationTest {
     @Nested
     @DisplayName("POST API 테스트")
     class Test_POST {
-
-        private ResultDTO resultDTO;
-
-        @BeforeEach
-        @DisplayName("데이터 설정")
-        void setUp() {
-            Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
-            Integer bonusNumber = 4;
-            LocalDate date = LocalDate.parse("2024-03-16");
-
-            resultDTO = ResultDTO.builder()
-                    .round(round)
-                    .numbers(numbers)
-                    .bonusNumber(bonusNumber)
-                    .date(date)
-                    .build();
-        }
 
         @Nested
         @DisplayName("insert 테스트")
@@ -412,7 +400,7 @@ public class ResultIntegrationTest {
                 @DisplayName("실패(Validation_Numbers 예외)")
                 void fail_valid_numbers() {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5);
                     resultDTO.setNumbers(inValidNumbers);
 
                     // when
@@ -433,7 +421,7 @@ public class ResultIntegrationTest {
                 @DisplayName("실패(Validation_Number 예외)")
                 void fail_valid_number() {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 999));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5, 999);
                     resultDTO.setNumbers(inValidNumbers);
 
                     // when
@@ -502,26 +490,10 @@ public class ResultIntegrationTest {
     @DisplayName("PUT API 테스트")
     class Test_PUT {
 
-        private ResultDTO resultDTO;
-
         @BeforeEach
         @DisplayName("데이터 생성")
-        void setUp() {
-
-            Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
-            Integer bonusNumber = 4;
-            LocalDate date = LocalDate.parse("2024-03-16");
-
-            resultDTO = ResultDTO.builder()
-                    .round(round)
-                    .numbers(numbers)
-                    .bonusNumber(bonusNumber)
-                    .date(date)
-                    .build();
-
+        void create() {
             resultRepository.save(resultDTO.toEntity());
-
         }
 
         @Nested
@@ -648,7 +620,7 @@ public class ResultIntegrationTest {
                 @DisplayName("실패(Validation_Numbers 예외)")
                 void fail_valid_numbers() {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5);
                     resultDTO.setNumbers(inValidNumbers);
 
                     HttpEntity<ResultDTO> resultDTOHttpEntity = new HttpEntity<>(resultDTO);
@@ -675,7 +647,7 @@ public class ResultIntegrationTest {
                 @DisplayName("실패(Validation_Number 예외)")
                 void fail_valid_number() {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 999));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5, 999);
                     resultDTO.setNumbers(inValidNumbers);
 
                     HttpEntity<ResultDTO> resultDTOHttpEntity = new HttpEntity<>(resultDTO);
@@ -765,23 +737,9 @@ public class ResultIntegrationTest {
     @DisplayName("DELETE API 테스트")
     class Test_DELETE {
 
-        private ResultDTO resultDTO;
-
         @BeforeEach
-        @DisplayName("데이터 설정")
-        void setUp() {
-            Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
-            Integer bonusNumber = 4;
-            LocalDate date = LocalDate.parse("2024-03-16");
-
-            resultDTO = ResultDTO.builder()
-                    .round(round)
-                    .numbers(numbers)
-                    .bonusNumber(bonusNumber)
-                    .date(date)
-                    .build();
-
+        @DisplayName("데이터 생성")
+        void create() {
             resultRepository.save(resultDTO.toEntity());
         }
 

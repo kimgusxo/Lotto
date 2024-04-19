@@ -92,7 +92,7 @@ public class StatLottoRepositoryUnitTest {
             void success() {
                 // given
                 Integer number = 1;
-                List<Integer> numberList = new ArrayList<>(Arrays.asList(number));
+                List<Integer> numberList = Arrays.asList(number);
 
                 // when
                 List<StatLotto> statLottoList = statLottoRepository.findByNumberIn(numberList);
@@ -107,7 +107,7 @@ public class StatLottoRepositoryUnitTest {
             void fail() {
                 // given
                 Integer number = 0;
-                List<Integer> numberList = new ArrayList<>(Arrays.asList(number));
+                List<Integer> numberList = Arrays.asList(number);
 
                 // when
                 List<StatLotto> statLottoList = statLottoRepository.findByNumberIn(numberList);

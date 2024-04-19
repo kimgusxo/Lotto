@@ -69,7 +69,7 @@ public class StatLottoServiceUnitTest {
         @DisplayName("성공")
         void success() {
             // given
-            List<StatLotto> statLottoList = new ArrayList<>(Arrays.asList(statLotto));
+            List<StatLotto> statLottoList = Arrays.asList(statLotto);
             AggregationResults<StatLotto> results = new AggregationResults<>(statLottoList, new Document());
 
             given(mongoTemplate.aggregate(any(Aggregation.class), eq("result"), eq(StatLotto.class))).willReturn(results);
@@ -152,8 +152,8 @@ public class StatLottoServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2, 3));
-                List<StatLotto> statLottoList = new ArrayList<>(Arrays.asList(statLotto));
+                List<Integer> numberList = Arrays.asList(1, 2, 3);
+                List<StatLotto> statLottoList = Arrays.asList(statLotto);
 
                 given(statLottoRepository.findByNumberIn(numberList)).willReturn(statLottoList);
 
@@ -171,7 +171,7 @@ public class StatLottoServiceUnitTest {
             @DisplayName("실패")
             void fail() {
                 // given
-                List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2, 3));
+                List<Integer> numberList = Arrays.asList(1, 2, 3);
                 List<StatLotto> statLottoList = new ArrayList<>();
 
                 given(statLottoRepository.findByNumberIn(numberList)).willReturn(statLottoList);
@@ -193,7 +193,7 @@ public class StatLottoServiceUnitTest {
             @DisplayName("성공")
             void success() {
                 // given
-                List<StatLotto> statLottoList = new ArrayList<>(Arrays.asList(statLotto));
+                List<StatLotto> statLottoList = Arrays.asList(statLotto);
 
                 given(statLottoRepository.findAll()).willReturn(statLottoList);
 

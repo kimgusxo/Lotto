@@ -36,7 +36,7 @@ public class ResultRepositoryUnitTest {
         @DisplayName("데이터 생성")
         void setUp() {
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -207,7 +207,7 @@ public class ResultRepositoryUnitTest {
         void success() {
             // given
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -232,7 +232,7 @@ public class ResultRepositoryUnitTest {
         void fail() {
             // given
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -267,7 +267,7 @@ public class ResultRepositoryUnitTest {
             Integer round1 = 1111;
             Integer round2 = 1112;
 
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -358,7 +358,7 @@ public class ResultRepositoryUnitTest {
         @DisplayName("데이터 생성")
         void setUp() {
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 

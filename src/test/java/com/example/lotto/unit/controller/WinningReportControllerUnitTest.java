@@ -66,7 +66,7 @@ public class WinningReportControllerUnitTest {
                     .winningAmount(1714662540L)
                     .build();
 
-            List<RankDTO> rankDTOList = new ArrayList<>(Arrays.asList(rankDTO));
+            List<RankDTO> rankDTOList = Arrays.asList(rankDTO);
 
             winningReportDTO = WinningReportDTO.builder()
                     .round(round)
@@ -141,7 +141,7 @@ public class WinningReportControllerUnitTest {
                 LocalDate startDate = LocalDate.parse("2024-03-01");
                 LocalDate endDate = LocalDate.parse("2024-03-31");
 
-                List<WinningReportDTO> winningReportDTOList = new ArrayList<>(Arrays.asList(winningReportDTO));
+                List<WinningReportDTO> winningReportDTOList = Arrays.asList(winningReportDTO);
 
                 given(winningReportService.readByDate(startDate, endDate)).willReturn(winningReportDTOList);
 
@@ -202,7 +202,7 @@ public class WinningReportControllerUnitTest {
                 // given
                 Long totalWinningAmount = 100000000L;
 
-                List<WinningReportDTO> winningReportDTOList = new ArrayList<>(Arrays.asList(winningReportDTO));
+                List<WinningReportDTO> winningReportDTOList = Arrays.asList(winningReportDTO);
 
                 given(winningReportService.readByTotalWinningAmount(totalWinningAmount)).willReturn(winningReportDTOList);
 
@@ -397,7 +397,7 @@ public class WinningReportControllerUnitTest {
                 @DisplayName("실패(Validation_RankList 예외)")
                 void fail_valid_rankList() throws Exception {
                     // given
-                    List<RankDTO> inValidRankList = new ArrayList<>(Arrays.asList(rankDTO));
+                    List<RankDTO> inValidRankList = Arrays.asList(rankDTO);
                     winningReportDTO.setRankDTOList(inValidRankList);
 
                     String winningReportDTOJson = objectMapper.writeValueAsString(winningReportDTO);

@@ -70,7 +70,7 @@ public class StatLottoControllerUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                List<StatLottoDTO> statLottoDTOList = new ArrayList<>(Arrays.asList(statLottoDTO));
+                List<StatLottoDTO> statLottoDTOList = Arrays.asList(statLottoDTO);
                 given(statLottoService.calcStatLotto()).willReturn(statLottoDTOList);
 
                 // when & then
@@ -149,8 +149,8 @@ public class StatLottoControllerUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2 ,3));
-                List<StatLottoDTO> statLottoDTOList = new ArrayList<>(Arrays.asList(statLottoDTO));
+                List<Integer> numberList = Arrays.asList(1, 2 ,3);
+                List<StatLottoDTO> statLottoDTOList = Arrays.asList(statLottoDTO);
 
                 given(statLottoService.readByNumberList(numberList)).willReturn(statLottoDTOList);
 
@@ -168,7 +168,7 @@ public class StatLottoControllerUnitTest {
             @DisplayName("실패")
             void fail() throws Exception {
                 // given
-                List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2 ,3));
+                List<Integer> numberList = Arrays.asList(1, 2 ,3);
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_STAT_LOTTO;
 
                 given(statLottoService.readByNumberList(numberList)).willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode));
@@ -192,7 +192,7 @@ public class StatLottoControllerUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                List<StatLottoDTO> statLottoDTOList = new ArrayList<>(Arrays.asList(statLottoDTO));
+                List<StatLottoDTO> statLottoDTOList = Arrays.asList(statLottoDTO);
 
                 given(statLottoService.readAll()).willReturn(statLottoDTOList);
 

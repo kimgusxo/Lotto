@@ -54,7 +54,7 @@ public class ResultControllerUnitTest {
         @DisplayName("데이터 설정")
         void setUp() {
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -125,7 +125,7 @@ public class ResultControllerUnitTest {
             void success() throws Exception {
                 // given
                 Integer bonusNumber = 4;
-                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(resultDTO));
+                List<ResultDTO> resultDTOList = Arrays.asList(resultDTO);
 
                 given(resultService.readByBonusNumber(bonusNumber)).willReturn(resultDTOList);
 
@@ -179,7 +179,7 @@ public class ResultControllerUnitTest {
             void success() throws Exception {
                 // given
                 Integer number = 3;
-                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(resultDTO));
+                List<ResultDTO> resultDTOList = Arrays.asList(resultDTO);
 
                 given(resultService.readByNumber(number)).willReturn(resultDTOList);
 
@@ -234,7 +234,7 @@ public class ResultControllerUnitTest {
                 LocalDate startDate = LocalDate.parse("2024-03-01");
                 LocalDate endDate = LocalDate.parse("2024-03-31");
 
-                List<ResultDTO> resultDTOList = new ArrayList<>(Arrays.asList(resultDTO));
+                List<ResultDTO> resultDTOList = Arrays.asList(resultDTO);
 
                 given(resultService.readByDate(startDate, endDate)).willReturn(resultDTOList);
 
@@ -296,7 +296,7 @@ public class ResultControllerUnitTest {
             objectMapper.registerModule(new JavaTimeModule());
 
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -374,7 +374,7 @@ public class ResultControllerUnitTest {
                 @DisplayName("실패(Validation_Numbers 예외)")
                 void fail_valid_numbers() throws Exception {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5);
                     resultDTO.setNumbers(inValidNumbers);
 
                     String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
@@ -393,7 +393,7 @@ public class ResultControllerUnitTest {
                 @DisplayName("실패(Validation_Number 예외)")
                 void fail_valid_number() throws Exception {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 999));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5, 999);
                     resultDTO.setNumbers(inValidNumbers);
 
                     String resultDTOJson = objectMapper.writeValueAsString(resultDTO);
@@ -464,7 +464,7 @@ public class ResultControllerUnitTest {
             objectMapper.registerModule(new JavaTimeModule());
 
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -562,7 +562,7 @@ public class ResultControllerUnitTest {
                 @DisplayName("실패(Validation_Numbers 예외)")
                 void fail_valid_numbers() throws Exception {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5);
                     updateResultDTO.setNumbers(inValidNumbers);
 
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);
@@ -581,7 +581,7 @@ public class ResultControllerUnitTest {
                 @DisplayName("실패(Validation_Number 예외)")
                 void fail_valid_number() throws Exception {
                     // given
-                    List<Integer> inValidNumbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 999));
+                    List<Integer> inValidNumbers = Arrays.asList(1, 2, 3, 4, 5, 999);
                     updateResultDTO.setNumbers(inValidNumbers);
 
                     String updateResultDTOJson = objectMapper.writeValueAsString(updateResultDTO);

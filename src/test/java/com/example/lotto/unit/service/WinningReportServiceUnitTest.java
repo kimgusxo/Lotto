@@ -58,7 +58,7 @@ public class WinningReportServiceUnitTest {
                     .winningAmount(1714662540L)
                     .build();
 
-            List<Rank> rankList = new ArrayList<>(Arrays.asList(rank));
+            List<Rank> rankList = Arrays.asList(rank);
 
             winningReport = WinningReport.builder()
                     .round(round)
@@ -120,7 +120,7 @@ public class WinningReportServiceUnitTest {
                 LocalDate startDate = LocalDate.parse("2024-03-01");
                 LocalDate endDate = LocalDate.parse("2024-03-31");
 
-                List<WinningReport> winningReportList = new ArrayList<>(Arrays.asList(winningReport));
+                List<WinningReport> winningReportList = Arrays.asList(winningReport);
 
                 given(winningReportRepository.findByDateBetween(startDate, endDate)).willReturn(winningReportList);
 
@@ -165,7 +165,7 @@ public class WinningReportServiceUnitTest {
                 // given
                 Long totalWinningAmount = 1000000L;
 
-                List<WinningReport> winningReportList = new ArrayList<>(Arrays.asList(winningReport));
+                List<WinningReport> winningReportList = Arrays.asList(winningReport);
 
                 given(winningReportRepository.findByTotalWinningAmountGreaterThanEqual(totalWinningAmount)).willReturn(winningReportList);
 
@@ -221,7 +221,7 @@ public class WinningReportServiceUnitTest {
                     .winningAmount(1714662540L)
                     .build();
 
-            List<RankDTO> rankDTOList = new ArrayList<>(Arrays.asList(rankDTO));
+            List<RankDTO> rankDTOList = Arrays.asList(rankDTO);
 
             winningReportDTO = WinningReportDTO.builder()
                     .round(round)
@@ -306,7 +306,7 @@ public class WinningReportServiceUnitTest {
                     .winningAmount(1714662540L)
                     .build();
 
-            List<RankDTO> rankDTOList = new ArrayList<>(Arrays.asList(rankDTO));
+            List<RankDTO> rankDTOList = Arrays.asList(rankDTO);
 
             winningReportDTO = WinningReportDTO.builder()
                     .round(round)

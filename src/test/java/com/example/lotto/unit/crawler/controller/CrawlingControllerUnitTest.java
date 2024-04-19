@@ -49,13 +49,13 @@ public class CrawlingControllerUnitTest {
 
         Integer round = 1111;
         LocalDate date = LocalDate.parse("2024-03-16");
-        List<Integer> numbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
         Integer bonusNumber = 4;
         Long totalWinningAmount = 1111L;
-        List<Integer> rankings = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
-        List<Integer> winningCounts = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
-        List<Long> totalWinningAmounts = new ArrayList<>(Arrays.asList(1L, 2L, 3L, 4L, 5L));
-        List<Long> winningAmounts = new ArrayList<>(Arrays.asList(1L, 2L, 3L, 4L, 5L));
+        List<Integer> rankings = Arrays.asList(1, 2, 3, 4, 5);
+        List<Integer> winningCounts = Arrays.asList(1, 2, 3, 4, 5);
+        List<Long> totalWinningAmounts = Arrays.asList(1L, 2L, 3L, 4L, 5L);
+        List<Long> winningAmounts = Arrays.asList(1L, 2L, 3L, 4L, 5L);
 
 
         crawlingModel.setRound(round);
@@ -235,7 +235,7 @@ public class CrawlingControllerUnitTest {
             @DisplayName("성공")
             void success() throws Exception {
                 // given
-                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
+                List<CrawlingModel> crawlingModelList = Arrays.asList(crawlingModel);
 
                 willDoNothing().given(crawlingService).insertAllByCrawl(crawlingModelList);
                 String crawlingModelListJson = objectMapper.writeValueAsString(crawlingModelList);
@@ -251,7 +251,7 @@ public class CrawlingControllerUnitTest {
             @DisplayName("실패(Result 예외)")
             void fail_result() throws Exception {
                 // given
-                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
+                List<CrawlingModel> crawlingModelList = Arrays.asList(crawlingModel);
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
 
                 willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode)).given(crawlingService).insertAllByCrawl(crawlingModelList);
@@ -274,7 +274,7 @@ public class CrawlingControllerUnitTest {
             @DisplayName("실패(WinningReport 예외)")
             void fail_winningReport() throws Exception {
                 // given
-                List<CrawlingModel> crawlingModelList = new ArrayList<>(Arrays.asList(crawlingModel));
+                List<CrawlingModel> crawlingModelList = Arrays.asList(crawlingModel);
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_WINNING_REPORT;
 
                 willThrow(new CustomException(HttpStatus.BAD_REQUEST, errorCode)).given(crawlingService).insertAllByCrawl(crawlingModelList);

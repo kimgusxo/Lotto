@@ -50,7 +50,7 @@ public class ResultServiceUnitTest {
         @DisplayName("데이터 설정")
         void setUp() {
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -112,7 +112,7 @@ public class ResultServiceUnitTest {
             void success() {
                 // given
                 Integer bonusNumber = 4;
-                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+                List<Result> resultList = Arrays.asList(result);
 
                 given(resultRepository.findByBonusNumber(bonusNumber)).willReturn(resultList);
 
@@ -153,7 +153,7 @@ public class ResultServiceUnitTest {
             void success() {
                 // given
                 Integer number = 45;
-                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+                List<Result> resultList = Arrays.asList(result);
 
                 given(resultRepository.findByNumbersContaining(number)).willReturn(resultList);
 
@@ -196,7 +196,7 @@ public class ResultServiceUnitTest {
                 LocalDate startDate = LocalDate.parse("2024-03-01");
                 LocalDate endDate = LocalDate.parse("2024-03-31");
 
-                List<Result> resultList = new ArrayList<>(Arrays.asList(result));
+                List<Result> resultList = Arrays.asList(result);
 
                 given(resultRepository.findByDateBetween(startDate, endDate)).willReturn(resultList);
 
@@ -243,7 +243,7 @@ public class ResultServiceUnitTest {
         @DisplayName("데이터 설정")
         void setUp() {
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
@@ -320,7 +320,7 @@ public class ResultServiceUnitTest {
         @DisplayName("데이터 설정")
         void setUp() {
             Integer round = 1111;
-            List<Integer> numbers = new ArrayList<>(Arrays.asList(3, 13, 30, 33, 43, 45));
+            List<Integer> numbers = Arrays.asList(3, 13, 30, 33, 43, 45);
             Integer bonusNumber = 4;
             LocalDate date = LocalDate.parse("2024-03-16");
 
