@@ -57,8 +57,7 @@ public class CrawlingController {
 
     @PostMapping("/post/insert/all")
     public ResponseEntity<Void> insertAll() throws IOException {
-        List<CrawlingModel> crawlingModelList = new ArrayList<>();
-        crawlingModelList = getListByCrawlWebsite(1, 1112).getBody();
+        List<CrawlingModel> crawlingModelList = getListByCrawlWebsite(1, 1112).getBody();
         insertAllByCrawl(crawlingModelList);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
