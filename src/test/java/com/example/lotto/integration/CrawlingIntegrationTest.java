@@ -329,15 +329,30 @@ public class CrawlingIntegrationTest {
             @Test
             @DisplayName("성공")
             void success() {
+                // given
+
+                // when
+                ResponseEntity<Void> response =
+                        testRestTemplate.postForEntity("/crawlingModel/post/insert/all", null, Void.class);
+
+                // then
+                assertThat(response)
+                        .isNotNull();
+
+                assertThat(response.getStatusCode())
+                        .isEqualTo(HttpStatus.CREATED);
+
+                ResultDTO resultDTO = resultRepository.findByRound(crawlingModel.getRound()).toDTO();
+                WinningReportDTO winningReportDTO = winningReportRepository.findByRound(crawlingModel.getRound()).toDTO();
+
+                resultAssertThat(resultDTO, crawlingModel);
+                winningReportAssertThat(winningReportDTO, crawlingModel);
+
+                // log
+                resultLogger(resultDTO);
+                winningReportLogger(winningReportDTO);
 
             }
-
-            @Test
-            @DisplayName("실패")
-            void fail() {
-
-            }
-
         }
 
     }
