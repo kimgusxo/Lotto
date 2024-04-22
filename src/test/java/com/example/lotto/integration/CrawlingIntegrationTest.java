@@ -79,7 +79,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<CrawlingModel> response =
-                        testRestTemplate.getForEntity("/ceawling/get/crawlWebsite/" + page, CrawlingModel.class);
+                        testRestTemplate.getForEntity("/crawling/get/crawlWebsite/" + page, CrawlingModel.class);
 
                 CrawlingModel findCrawlingModel = response.getBody();
 
@@ -102,10 +102,10 @@ public class CrawlingIntegrationTest {
                         testRestTemplate.getForEntity("/ceawling/get/crawlWebsite/" + notExistPage, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_CRAWLING_MODEL;
+                ErrorCode errorCode = ErrorCode.UNKNOWN;
 
                 // then
-                errorAssertThat(errorResponse, errorDTO, errorCode);
+                unknownErrorAssertThat(errorResponse, errorDTO, errorCode);
 
                 // log
                 errorLogger(errorDTO);
@@ -143,8 +143,8 @@ public class CrawlingIntegrationTest {
             @DisplayName("실패")
             void fail() {
                 // given
-                Integer notExistStartPage = 1111;
-                Integer notExistEndPage = 1112;
+                Integer notExistStartPage = 9998;
+                Integer notExistEndPage = 9999;
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
@@ -152,10 +152,10 @@ public class CrawlingIntegrationTest {
                                 ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_CRAWLING_MODEL;
+                ErrorCode errorCode = ErrorCode.UNKNOWN;
 
                 // then
-                errorAssertThat(errorResponse, errorDTO, errorCode);
+                unknownErrorAssertThat(errorResponse, errorDTO, errorCode);
 
                 // log
                 errorLogger(errorDTO);
@@ -179,7 +179,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<Void> response =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert", crawlingModel, Void.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert", crawlingModel, Void.class);
 
                 // then
                 assertThat(response)
@@ -208,7 +208,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert", crawlingModel, ErrorDTO.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert", crawlingModel, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
@@ -230,7 +230,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert", crawlingModel, ErrorDTO.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert", crawlingModel, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_WINNING_REPORT;
@@ -254,7 +254,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<Void> response =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert/list", crawlingModelList, Void.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert/list", crawlingModelList, Void.class);
 
                 // then
                 assertThat(response)
@@ -285,7 +285,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert/list", crawlingModelList, ErrorDTO.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert/list", crawlingModelList, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
@@ -308,10 +308,10 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert/list", crawlingModelList, ErrorDTO.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert/list", crawlingModelList, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
-                ErrorCode errorCode = ErrorCode.NOT_EXIST_RESULT;
+                ErrorCode errorCode = ErrorCode.NOT_EXIST_WINNING_REPORT;
 
                 // then
                 errorAssertThat(errorResponse, errorDTO, errorCode);
@@ -333,7 +333,7 @@ public class CrawlingIntegrationTest {
 
                 // when
                 ResponseEntity<Void> response =
-                        testRestTemplate.postForEntity("/crawlingModel/post/insert/all", null, Void.class);
+                        testRestTemplate.postForEntity("/crawling/post/insert/all", null, Void.class);
 
                 // then
                 assertThat(response)
@@ -453,13 +453,13 @@ public class CrawlingIntegrationTest {
         RankDTO rankDTO = winningReportDTO.getRankDTOList().get(0);
 
         assertThat(rankDTO.getRanking())
-                .isEqualTo(crawlingModel.getRankings());
+                .isEqualTo(crawlingModel.getRankings().get(0));
         assertThat(rankDTO.getWinningCount())
-                .isEqualTo(crawlingModel.getWinningCounts());
+                .isEqualTo(crawlingModel.getWinningCounts().get(0));
         assertThat(rankDTO.getTotalWinningAmount())
-                .isEqualTo(crawlingModel.getTotalWinningAmounts());
+                .isEqualTo(crawlingModel.getTotalWinningAmounts().get(0));
         assertThat(rankDTO.getWinningAmount())
-                .isEqualTo(crawlingModel.getWinningAmounts());
+                .isEqualTo(crawlingModel.getWinningAmounts().get(0));
     }
 
     // error assertThat 함수
@@ -469,6 +469,20 @@ public class CrawlingIntegrationTest {
 
         assertThat(errorResponse.getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(errorDTO.getCode())
+                .isEqualTo(errorCode.getCode());
+        assertThat(errorDTO.getDetail())
+                .isEqualTo(errorCode.getDetail());
+    }
+
+    // 외부 모듈 error assertThat 함수
+    void unknownErrorAssertThat(ResponseEntity<ErrorDTO> errorResponse, ErrorDTO errorDTO, ErrorCode errorCode) {
+        assertThat(errorResponse)
+                .isNotNull();
+
+        assertThat(errorResponse.getStatusCode())
+                .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 
         assertThat(errorDTO.getCode())
                 .isEqualTo(errorCode.getCode());
