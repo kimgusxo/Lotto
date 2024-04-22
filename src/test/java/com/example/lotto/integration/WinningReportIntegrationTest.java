@@ -104,7 +104,7 @@ public class WinningReportIntegrationTest {
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse
-                        = testRestTemplate.getForEntity("/result/get/round/" + notExistRound, ErrorDTO.class);
+                        = testRestTemplate.getForEntity("/winningReport/get/round/" + notExistRound, ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_WINNING_REPORT_ROUND;
@@ -873,6 +873,8 @@ public class WinningReportIntegrationTest {
             void success() {
                 // given
                 Integer round = 1111;
+
+                winningReportRepository.save(winningReportDTO.toEntity());
 
                 // when
                 ResponseEntity<Void> response = testRestTemplate.exchange(
