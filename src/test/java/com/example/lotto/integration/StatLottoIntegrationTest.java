@@ -82,22 +82,6 @@ public class StatLottoIntegrationTest {
 
             }
 
-            @Test
-            @DisplayName("실패")
-            void fail() {
-                // given
-
-                // when
-                ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.getForEntity("/statLotto/get/calc", ErrorDTO.class);
-
-                log.info(errorResponse.getStatusCode().toString());
-                log.info(errorResponse.getBody().getCode());
-                log.info(errorResponse.getBody().getDetail());
-
-            }
-
-
         }
 
         @Nested
