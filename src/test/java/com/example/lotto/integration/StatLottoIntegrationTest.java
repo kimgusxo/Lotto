@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,6 +57,12 @@ public class StatLottoIntegrationTest {
         @DisplayName("calcStatLotto 테스트")
         class Test_CalcStatLotto {
 
+            @BeforeEach
+            @DisplayName("데이터 생성")
+            void create() {
+                testRestTemplate.postForEntity("/crawling/post/insert/all", null, Void.class);
+            }
+
             @Test
             @DisplayName("성공")
             void success() {
@@ -74,6 +81,23 @@ public class StatLottoIntegrationTest {
                 logger(statLottoDTOList.get(0));
 
             }
+
+            @Test
+            @DisplayName("실패")
+            void fail() {
+                // given
+
+                // when
+                ResponseEntity<ErrorDTO> errorResponse =
+                        testRestTemplate.getForEntity("/statLotto/get/calc", ErrorDTO.class);
+
+                log.info(errorResponse.getStatusCode().toString());
+                log.info(errorResponse.getBody().getCode());
+                log.info(errorResponse.getBody().getDetail());
+
+            }
+
+
         }
 
         @Nested
@@ -142,11 +166,11 @@ public class StatLottoIntegrationTest {
             @DisplayName("성공")
             void success() {
                 // given
-                List<Integer> numberList = Arrays.asList(1);
+                List<Integer> numberList = List.of(1);
 
                 // when
                 ResponseEntity<StatLottoDTO[]> response =
-                        testRestTemplate.getForEntity("/get/numberList?numberList=" + numberList.get(0), StatLottoDTO[].class);
+                        testRestTemplate.getForEntity("/statLotto/get/numberList?numberList=" + numberList.get(0), StatLottoDTO[].class);
 
                 List<StatLottoDTO> statLottoDTOList = Arrays.asList(response.getBody());
 
@@ -161,12 +185,11 @@ public class StatLottoIntegrationTest {
             @DisplayName("실패")
             void fail() {
                 // given
-                List<Integer> numberList = Arrays.asList(46, 47, 48);
+                List<Integer> numberList = List.of(46);
 
                 // when
                 ResponseEntity<ErrorDTO> errorResponse =
-                        testRestTemplate.getForEntity("/get/numberList?numberList=" + numberList.get(0) +
-                                "&numberList=" + numberList.get(1) + "&numberList= " + numberList.get(2), ErrorDTO.class);
+                        testRestTemplate.getForEntity("/statLotto/get/numberList?numberList=" + numberList.get(0), ErrorDTO.class);
 
                 ErrorDTO errorDTO = errorResponse.getBody();
                 ErrorCode errorCode = ErrorCode.NOT_EXIST_STAT_LOTTO;

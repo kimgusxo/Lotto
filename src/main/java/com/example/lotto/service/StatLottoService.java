@@ -8,9 +8,7 @@ import com.example.lotto.repository.StatLottoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,24 +33,27 @@ public class StatLottoService {
     public List<StatLottoDTO> calcStatLotto() {
             // 집계 파이프라인 정의
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.unwind("numbers"), // numbers 필드를 풀어헤침
-                Aggregation.group("numbers")   // numbers로 그룹화
-                        .count().as("count")       // 각 숫자의 등장 횟수 계산
-                        .sum("count").as("totalNumbers"), // 전체 숫자의 카운트 계산
-                Aggregation.lookup("result", "_id", "bonusNumber", "bonusMatches"), // 보너스 번호 매칭
-                Aggregation.addFields().addField("bonusCount").withValueOf(ArrayOperators.Size.lengthOfArray("bonusMatches")).build(),
-                Aggregation.project() // 결과 필드 정의
-                        .andInclude("number", "count", "bonusCount")
-                        .andExpression("count / totalNumbers * 100").as("probability") // 일반 번호 확률 계산
-                        .andExpression("bonusCount / totalBonus * 100").as("bonusProbability"), // 보너스 번호 확률 계산
-                Aggregation.group((String) null)  // 전체 보너스 카운트 계산
-                        .sum("totalNumbers").as("totalNumbers")
+                Aggregation.unwind("numbers"),
+                Aggregation.group("numbers")
+                        .count().as("count"),
+                Aggregation.lookup("result", "_id", "bonusNumber", "bonusMatches"),
+                Aggregation.addFields()
+                        .addField("bonusCount")
+                        .withValueOf(ArrayOperators.Size.lengthOfArray("bonusMatches")).build(),
+                Aggregation.project()
+                        .andInclude("count", "bonusCount")
+                        .and("_id").as("number")
+                        .andExclude("_id"),
+                Aggregation.group()
+                        .sum("count").as("totalCount")
                         .sum("bonusCount").as("totalBonus")
                         .push("$$ROOT").as("details"),
                 Aggregation.unwind("details"),
-                Aggregation.project()  // 최종 결과 정의
-                        .andInclude("details.number", "details.count", "details.bonusCount")
-                        .andExpression("details.count / totalNumbers * 100").as("probability")
+                Aggregation.project()
+                        .and("details.number").as("number")
+                        .and("details.count").as("count")
+                        .and("details.bonusCount").as("bonusCount")
+                        .andExpression("details.count / totalCount * 100").as("probability")
                         .andExpression("details.bonusCount / totalBonus * 100").as("bonusProbability"),
                 Aggregation.sort(Sort.Direction.ASC, "number")
         );
