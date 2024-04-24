@@ -23,9 +23,13 @@ public class LottoMachine {
         List<Integer> numbers = initializeMachine();
 
         Collections.shuffle(numbers);
+        List<Integer> selectedNumbers = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            selectedNumbers.add(numbers.remove(random.nextInt(numbers.size())));
+        }
 
-        List<Integer> selectedNumbers = numbers.subList(0, 6); // 6개의 주요 번호 선택
-        Integer bonusNumber = numbers.get(6); // 7번째 번호를 보너스 번호로 선택
+        Collections.sort(selectedNumbers);
+        Integer bonusNumber = numbers.get(random.nextInt(numbers.size()));
 
         LottoNumber lottoNumber = new LottoNumber();
         lottoNumber.setNumbers(selectedNumbers);
@@ -37,15 +41,11 @@ public class LottoMachine {
         List<StatLotto> lottoStats = statLottoRepository.findAll();
         List<Integer> numbers = new ArrayList<>();
         for (StatLotto stat : lottoStats) {
-            addNumber(numbers, stat.getNumber(), stat.getProbability());
+            int weight = (int) (stat.getProbability() * 100);  // 가중치 적용
+            for (int i = 0; i < weight; i++) {
+                numbers.add(stat.getNumber());
+            }
         }
         return numbers;
-    }
-
-    private void addNumber(List<Integer> numbers, int number, double probability) {
-        int weight = (int) (probability * 100);
-        for (int i = 0; i < weight; i++) {
-            numbers.add(number);
-        }
     }
 }
