@@ -1,7 +1,5 @@
 package com.example.lotto.integration;
 
-import com.example.lotto.controller.StatLottoController;
-import com.example.lotto.crawler.controller.CrawlingController;
 import com.example.lotto.domain.dto.StatLottoDTO;
 import com.example.lotto.simulation.model.LottoNumber;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +51,7 @@ public class LottoMachineIntegrationTest {
                 List<Integer> first = Arrays.asList(11,13,20,21,32,44);
                 Integer bonusNumber = 8;
 
-                int maxAttempts = 10; // 10,000번 반복
+                int maxAttempts = 10;
 
                 for (int i = 0; i < maxAttempts; i++) {
                     Integer count = 1000;
@@ -106,7 +104,7 @@ public class LottoMachineIntegrationTest {
             @Test
             @DisplayName("가중치 적용 테스트")
             void weightEffect() {
-                int maxAttempts = 100000; // 10,000번 반복
+                int maxAttempts = 100000;
 
                 for (int i = 0; i < maxAttempts; i++) {
                     ResponseEntity<LottoNumber[]> response =
