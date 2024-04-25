@@ -51,23 +51,19 @@ public class LottoMachineIntegrationTest {
                 List<Integer> first = Arrays.asList(11,13,20,21,32,44);
                 Integer bonusNumber = 8;
 
-                int maxAttempts = 10;
+                Integer count = 1000000;
+                ResponseEntity<LottoNumber[]> response =
+                        testRestTemplate.getForEntity("/lottoMachine/get/count/" + count, LottoNumber[].class);
 
-                for (int i = 0; i < maxAttempts; i++) {
-                    Integer count = 1000;
-                    ResponseEntity<LottoNumber[]> response =
-                            testRestTemplate.getForEntity("/lottoMachine/get/count/" + count, LottoNumber[].class);
+                List<LottoNumber> lottoNumberList = Arrays.asList(response.getBody());
 
-                    List<LottoNumber> lottoNumberList = Arrays.asList(response.getBody());
+                for (LottoNumber lottoNumber : lottoNumberList) {
+                    int matchedNumbers = (int) first.stream()
+                            .filter(lottoNumber.getNumbers()::contains)
+                            .count();
 
-                    for (LottoNumber lottoNumber : lottoNumberList) {
-                        int matchedNumbers = (int) first.stream()
-                                .filter(lottoNumber.getNumbers()::contains)
-                                .count();
-
-                        boolean isBonusMatched = lottoNumber.getBonusNumber() == bonusNumber;
-                        determinePrize(matchedNumbers, isBonusMatched);
-                    }
+                    boolean isBonusMatched = lottoNumber.getBonusNumber() == bonusNumber;
+                    determinePrize(matchedNumbers, isBonusMatched);
                 }
 
                 System.out.println("1등: " + a);
