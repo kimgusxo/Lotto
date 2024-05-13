@@ -6,6 +6,9 @@ import com.example.lotto.error.CustomException;
 import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.WinningReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ public class WinningReportService {
     @Autowired
     private WinningReportRepository winningReportRepository;
 
+    private static final int PAGE_SIZE = 10;
 
     @Transactional
     public WinningReportDTO readByRound(Integer round) {
@@ -32,6 +36,36 @@ public class WinningReportService {
 
         WinningReportDTO winningReportDTO = winningReportRepository.findByRound(round).toDTO();
         return winningReportDTO;
+    }
+
+    @Transactional
+    public WinningReportDTO readLastOne() {
+        WinningReport winningReport = winningReportRepository.findFirstByOrderByRoundDesc();
+
+        if(Objects.isNull(winningReport)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
+        }
+
+        WinningReportDTO winningReportDTO = winningReport.toDTO();
+        return winningReportDTO;
+    }
+
+    @Transactional
+    public List<WinningReportDTO> readByPage(Integer page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+        Page<WinningReport> winningReportPage = winningReportRepository.findAll(pageable);
+
+        if(winningReportPage.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_WINNING_REPORT);
+        }
+
+        List<WinningReportDTO> winningReportDTOList = new ArrayList<>();
+
+        winningReportPage.getContent().forEach((w) ->
+                winningReportDTOList.add(w.toDTO()));
+
+        return winningReportDTOList;
     }
 
     @Transactional

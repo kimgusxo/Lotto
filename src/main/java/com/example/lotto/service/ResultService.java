@@ -6,6 +6,9 @@ import com.example.lotto.error.CustomException;
 import com.example.lotto.error.ErrorCode;
 import com.example.lotto.repository.ResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,8 @@ public class ResultService {
 
     @Autowired
     private ResultRepository resultRepository;
+
+    private static final int PAGE_SIZE = 10;
 
     @Transactional
     public ResultDTO readByRound(Integer round) {
@@ -58,6 +63,36 @@ public class ResultService {
         List<ResultDTO> resultDTOList = new ArrayList<>();
 
         resultList.forEach((r)->
+                resultDTOList.add(r.toDTO()));
+
+        return resultDTOList;
+    }
+
+    @Transactional
+    public ResultDTO readLastOne() {
+        Result result = resultRepository.findFirstByOrderByRoundDesc();
+
+        if(Objects.isNull(result)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT);
+        }
+
+        ResultDTO resultDTO = result.toDTO();
+        return resultDTO;
+    }
+
+    @Transactional
+    public List<ResultDTO> readByPage(Integer page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+        Page<Result> resultPage = resultRepository.findAll(pageable);
+
+        if(resultPage.isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_EXIST_RESULT);
+        }
+
+        List<ResultDTO> resultDTOList = new ArrayList<>();
+
+        resultPage.getContent().forEach((r) ->
                 resultDTOList.add(r.toDTO()));
 
         return resultDTOList;
@@ -118,5 +153,4 @@ public class ResultService {
         }
 
     }
-
 }

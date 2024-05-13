@@ -45,11 +45,23 @@ public class ResultController {
         return new ResponseEntity<>(resultDTOList, HttpStatus.OK);
     }
 
+    @GetMapping("/get/lastOne")
+    public ResponseEntity<ResultDTO> getLastOne() {
+        ResultDTO resultDTO = resultService.readLastOne();
+        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/page/{page}")
+    public ResponseEntity<List<ResultDTO>> getByPage(@PathVariable Integer page) {
+        List<ResultDTO> resultDTOList = resultService.readByPage(page);
+        return new ResponseEntity<>(resultDTOList, HttpStatus.OK);
+    }
+
     @GetMapping("/get/date")
     public ResponseEntity<List<ResultDTO>> getByDate(@RequestParam("startDate") @Past LocalDate startDate,
                                                      @RequestParam("endDate") @Past LocalDate endDate) {
-        List<ResultDTO> results = resultService.readByDate(startDate, endDate);
-        return new ResponseEntity<>(results, HttpStatus.OK);
+        List<ResultDTO> resultDTOList = resultService.readByDate(startDate, endDate);
+        return new ResponseEntity<>(resultDTOList, HttpStatus.OK);
     }
 
     @PostMapping("/post/insert")

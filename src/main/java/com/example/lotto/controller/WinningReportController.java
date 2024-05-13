@@ -2,7 +2,6 @@ package com.example.lotto.controller;
 
 import com.example.lotto.domain.dto.WinningReportDTO;
 import com.example.lotto.service.WinningReportService;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Past;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,18 @@ public class WinningReportController {
     public ResponseEntity<WinningReportDTO> getByRound(@PathVariable @Min(1) Integer round) {
         WinningReportDTO winningReportDTO = winningReportService.readByRound(round);
         return new ResponseEntity<>(winningReportDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/lastOne")
+    public ResponseEntity<WinningReportDTO> getLastOne() {
+        WinningReportDTO winningReportDTO = winningReportService.readLastOne();
+        return new ResponseEntity<>(winningReportDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/page/{page}")
+    public ResponseEntity<List<WinningReportDTO>> getByPage(@PathVariable Integer page) {
+        List<WinningReportDTO> winningReportDTOList = winningReportService.readByPage(page);
+        return new ResponseEntity<>(winningReportDTOList, HttpStatus.OK);
     }
 
     @GetMapping("/get/date")

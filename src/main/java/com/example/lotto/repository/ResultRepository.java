@@ -16,6 +16,7 @@ public interface ResultRepository extends MongoRepository<Result, String> {
     List<Result> findByBonusNumber(Integer bonusNumber);
     List<Result> findByNumbersContaining(Integer number);
     List<Result> findByDateBetween(LocalDate startDate, LocalDate endDate);
+    Result findFirstByOrderByRoundDesc();
     Integer deleteByRound(Integer round);
 
 }
